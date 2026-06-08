@@ -1,10 +1,11 @@
 name: Deploy PWA to GitHub Pages
 
 # Publica el sitio estático (la PWA) en GitHub Pages.
-# Se ejecuta al hacer push a main y también de forma manual.
+# Se ejecuta al hacer push a main (o a la rama de trabajo, que es la que el
+# entorno github-pages tiene permitida) y también de forma manual.
 on:
   push:
-    branches: [main]
+    branches: [main, claude/medical-records-offline-tool-u1t41j]
   workflow_dispatch:
 
 # Permisos necesarios para desplegar en Pages
