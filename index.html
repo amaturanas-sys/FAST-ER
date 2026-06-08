@@ -268,6 +268,61 @@
             margin: 0 auto 10px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ===== Mejoras de interfaz: navegación rápida, colapsables y barra fija ===== */
+        .quick-nav {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(4px);
+            border-bottom: 1px solid var(--color-border);
+            padding: 10px 0;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .quick-nav .qn-label { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; margin-right: 4px; }
+        .quick-nav a {
+            font-size: 12px;
+            text-decoration: none;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 14px;
+            padding: 3px 10px;
+            white-space: nowrap;
+        }
+        .quick-nav a:hover { background: var(--color-primary); color: #fff; }
+
+        /* Secciones colapsables: clic en el título */
+        .section { scroll-margin-top: 70px; }
+        .section > h2 { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 8px; }
+        .section > h2::before {
+            content: "▾";
+            font-size: 0.7em;
+            color: var(--color-primary);
+            transition: transform 0.2s;
+        }
+        .section.collapsed > h2::before { content: "▸"; }
+        .section.collapsed > *:not(h2) { display: none; }
+
+        /* Barra de acciones fija al pie */
+        .buttons-section {
+            position: sticky;
+            bottom: 0;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+            z-index: 950;
+        }
+
+        @media (max-width: 600px) {
+            .btn-primary, .btn-secondary { padding: 10px 16px; font-size: 14px; }
+            .buttons-section { gap: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -281,6 +336,10 @@
         </header>
         
         <form id="fichaForm">
+            <nav id="quickNav" class="quick-nav" aria-label="Navegación rápida">
+                <span class="qn-label">Ir a:</span>
+            </nav>
+
             <div class="section">
                 <h2>Encabezado</h2>
                 <div class="form-row">
@@ -369,7 +428,7 @@
             </div>
 
             <!-- ANTECEDENTES -->
-            <div class="section">
+            <div class="section" id="seccionAntecedentes">
                 <h2>Antecedentes</h2>
 
                 <div class="form-group">
@@ -659,7 +718,7 @@
             </div>
 
             <!-- HISTORIA CLÍNICA -->
-            <div class="section">
+            <div class="section" id="seccionHistoria">
                 <h2>Historia Clínica</h2>
 
                 <div class="form-group">
@@ -1311,7 +1370,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.3 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.4 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1324,7 +1383,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.3 alpha // 08-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.4 alpha // 08-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -1453,6 +1512,9 @@
             // Set fecha actual
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('fechaActual').value = today;
+
+            // Interfaz: navegación rápida + secciones colapsables
+            initUX();
 
             // Autoguardado: restaurar la última ficha y empezar a guardar cambios
             restoreState();
@@ -1602,11 +1664,54 @@
             const emb = esFemenino && !!estado && estado.value === 'Embarazada';
             const embDiv = document.getElementById('goEmbarazoDiv');
             if (embDiv) embDiv.classList.toggle('hidden', !emb);
+            if (typeof refreshNav === 'function') refreshNav();
         }
 
-        // Ajusta qué secciones se muestran según el tipo de documento.
-        // (Se amplía en las mejoras de interfaz.)
-        function aplicarVisibilidadPorTipo() {}
+        // Para una Evolución, las secciones de antecedentes/historia suelen venir
+        // de una ficha previa (importada): se colapsan por defecto para ir más rápido.
+        // Siguen accesibles con un clic. En Ingreso/Epicrisis se muestran expandidas.
+        function aplicarVisibilidadPorTipo() {
+            const tipoEl = document.getElementById('tipoDocumento');
+            if (!tipoEl) return;
+            const colapsar = tipoEl.value === 'Evolución';
+            ['seccionAntecedentes', 'seccionHistoria', 'seccionGO'].forEach(id => {
+                const sec = document.getElementById(id);
+                if (sec) sec.classList.toggle('collapsed', colapsar);
+            });
+            refreshNav();
+        }
+
+        // Construye la navegación rápida y habilita el colapso por clic en cada título.
+        function initUX() {
+            const nav = document.getElementById('quickNav');
+            document.querySelectorAll('#fichaForm .section').forEach((sec, i) => {
+                const h2 = sec.querySelector(':scope > h2');
+                if (!h2) return;
+                if (!sec.id) sec.id = 'sec-' + i;
+                h2.addEventListener('click', () => sec.classList.toggle('collapsed'));
+                if (nav) {
+                    const a = document.createElement('a');
+                    a.href = '#' + sec.id;
+                    a.textContent = h2.textContent.trim();
+                    a.dataset.target = sec.id;
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        sec.classList.remove('collapsed');
+                        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                    nav.appendChild(a);
+                }
+            });
+            refreshNav();
+        }
+
+        // Oculta del menú las secciones que no están visibles (p. ej. gineco-obstétrica).
+        function refreshNav() {
+            document.querySelectorAll('#quickNav a').forEach(a => {
+                const t = document.getElementById(a.dataset.target);
+                a.style.display = (t && t.classList.contains('hidden')) ? 'none' : '';
+            });
+        }
 
         // Pequeño aviso visual de "Guardado"
         function showAutosaveBadge() {
