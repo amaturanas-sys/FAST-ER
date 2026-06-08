@@ -415,6 +415,13 @@
         /* Sección oculta por el tipo de documento */
         .tipo-oculto { display: none !important; }
 
+        /* Campo obligatorio faltante al generar */
+        .campo-error {
+            border-color: var(--color-error) !important;
+            box-shadow: 0 0 0 2px rgba(192, 32, 60, 0.18) !important;
+            background: #fff6f7;
+        }
+
         /* Indicador del tipo actual en la mini-barra */
         .tipo-actual {
             display: inline-flex;
@@ -1570,7 +1577,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.7 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.7.1 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1583,7 +1590,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.7 alpha // 08-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.7.1 alpha // 08-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -1723,6 +1730,8 @@
             form.addEventListener('change', saveState);
             form.addEventListener('input', updateSectionIndicators);
             form.addEventListener('change', updateSectionIndicators);
+            // Quitar el resaltado de error al corregir el campo
+            form.addEventListener('input', (e) => { if (e.target.classList) e.target.classList.remove('campo-error'); });
 
             // Paso 1: pantalla de elección del tipo (o aplica el tipo si ya hay ficha en curso)
             initTipoFlow();
@@ -1900,10 +1909,25 @@
             'Epicrisis':  ['encabezado','datos','diagnosticos','antecedentes','gineco','historia','procedimientos','laboratorio','imagenes','condiciones','indicaciones','planes','referencias','firmas']
         };
 
-        // Reordena y muestra/oculta las secciones según el tipo de documento.
+        // Renombrado de títulos de sección según el tipo (clave de sección → título).
+        const TIPO_TITULOS = {
+            'Evolución': {
+                diagnosticos: 'Diagnósticos / Problemas Activos'
+            },
+            'Epicrisis': {
+                diagnosticos: 'Diagnósticos de Egreso',
+                historia: 'Resumen de la Hospitalización',
+                condiciones: 'Condición al Alta',
+                indicaciones: 'Indicaciones al Alta',
+                planes: 'Plan, Controles y Pendientes'
+            }
+        };
+
+        // Reordena, muestra/oculta y renombra las secciones según el tipo de documento.
         function aplicarVisibilidadPorTipo() {
             const tipo = document.getElementById('tipoDocumento').value;
             const orden = TIPO_CONFIG[tipo];
+            const titulos = TIPO_TITULOS[tipo] || {};
             const form = document.getElementById('fichaForm');
             const anchor = form.querySelector('.buttons-section');
             const secs = Array.from(form.querySelectorAll('.section'));
@@ -1918,6 +1942,11 @@
             } else {
                 secs.forEach(s => s.classList.remove('tipo-oculto'));
             }
+            // Renombrar (o restaurar) los títulos
+            secs.forEach(s => {
+                const h2 = s.querySelector(':scope > h2');
+                if (h2) h2.textContent = titulos[s.dataset.sec] || s.dataset.tituloDefault;
+            });
             actualizarIndicadorTipo();
             updateSectionIndicators();
         }
@@ -1982,6 +2011,7 @@
                 if (!h2) return;
                 if (!sec.id) sec.id = 'sec-' + i;
                 sec.dataset.sec = TIPO_KEY_BY_TITULO[h2.textContent.trim()] || ('sec-' + i);
+                sec.dataset.tituloDefault = h2.textContent.trim();
                 sec.classList.add('collapsed'); // colapsadas por defecto
                 h2.addEventListener('click', () => sec.classList.toggle('collapsed'));
             });
@@ -2268,13 +2298,38 @@
         }
 
  // GENERACIÓN DEL DOCUMENTO
+        // Valida los campos obligatorios visibles (ignora secciones ocultas por el tipo).
+        // Marca en rojo los faltantes y devuelve la lista.
+        function validarObligatorios() {
+            const faltantes = [];
+            document.querySelectorAll('#fichaForm [required]').forEach(el => {
+                const sec = el.closest('.section');
+                if (sec && (sec.classList.contains('tipo-oculto') || sec.classList.contains('hidden'))) {
+                    el.classList.remove('campo-error');
+                    return;
+                }
+                if (!(el.value || '').trim()) {
+                    el.classList.add('campo-error');
+                    faltantes.push(el);
+                } else {
+                    el.classList.remove('campo-error');
+                }
+            });
+            return faltantes;
+        }
+
         async function generarDocumento() {
-            // Validar campos mínimos
-            const nombre = document.getElementById('pacienteNombre').value;
-            if (!nombre) {
-                alert("Por favor ingrese al menos el nombre del paciente.");
+            // Validar campos obligatorios visibles
+            const faltantes = validarObligatorios();
+            if (faltantes.length) {
+                const sec = faltantes[0].closest('.section');
+                if (sec) sec.classList.remove('collapsed');
+                faltantes[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                try { faltantes[0].focus(); } catch (e) {}
+                alert(`Faltan ${faltantes.length} campo(s) obligatorio(s). Se han marcado en rojo; complétalos antes de generar.`);
                 return;
             }
+            const nombre = document.getElementById('pacienteNombre').value;
 
             document.getElementById('loading').style.display = 'block';
 
@@ -2413,132 +2468,141 @@
                 });
 
                 // Construcción de secciones
+                // El documento incluye sólo las secciones del tipo elegido, con sus títulos.
+                const tipoDoc = getVal('tipoDocumento');
+                const ordenDoc = TIPO_CONFIG[tipoDoc];
+                const incluir = (key) => !ordenDoc || ordenDoc.includes(key);
+                const tit = (key, def) => (TIPO_TITULOS[tipoDoc] && TIPO_TITULOS[tipoDoc][key])
+                    ? TIPO_TITULOS[tipoDoc][key].toUpperCase() : def;
+
+                const paraclinicos = [];
+                if (incluir('laboratorio')) {
+                    paraclinicos.push(createPair("Laboratorio", getVal('laboratorios')));
+                    paraclinicos.push(createPair("Laboratorio orina", getVal('laboratorioOrina')));
+                    paraclinicos.push(createPair("Laboratorio fluidos", getVal('laboratorioFluidos')));
+                }
+                if (incluir('imagenes')) paraclinicos.push(createPair("Imágenes", getVal('imagenes')));
+                if (incluir('microbiologia')) paraclinicos.push(createPair("Microbiología", getVal('microbiologia')));
+                if (incluir('procedimientos')) paraclinicos.push(createPair("Procedimientos", getVal('procedimientos')));
+                if (incluir('electro')) paraclinicos.push(createPair("Electrofisiológicos", getVal('electrofisiologia')));
+                if (incluir('funcionales')) paraclinicos.push(createPair("Estudios funcionales", getVal('funcionalesSA')));
+
+                const docChildren = [
+                    new Paragraph({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, heading: docx.HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
+                    new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: `${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, size: 22, color: "555555" })] }),
+                    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [new TextRun({ text: `Sala/Cama: ${getVal('salaCama') || '—'}   •   Fecha: ${formatDate(getVal('fechaActual')) || '—'}`, size: 18, color: "777777" })] }),
+
+                    // Datos Paciente (siempre)
+                    createHeader("DATOS DEL PACIENTE"),
+                    new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        borders: NO_BORDERS,
+                        rows: [
+                            idRow("Nombre", nombre),
+                            idRow("RUT", getVal('pacienteRUT')),
+                            idRow("Edad", getVal('pacienteEdad')),
+                            idRow("Sala / Cama", getVal('salaCama')),
+                            idRow("Servicio de ingreso", getVal('servicioIngreso')),
+                            idRow("Fecha ingreso SU", formatDate(getVal('fechaSU'))),
+                            idRow("Fecha ingreso al servicio", formatDate(getVal('fechaServicio'))),
+                            idRow("Fecha del documento", formatDate(getVal('fechaActual')))
+                        ]
+                    }),
+
+                    ...(incluir('antecedentes') ? [
+                        createHeader("ANTECEDENTES"),
+                        createPair("Mórbidos", getVal('antecedentesMoviles')),
+                        createPair("Quirúrgicos", getVal('antecedentesQuirurgicos')),
+                        createPair("Fármacos de uso crónico", getVal('farmacos')),
+                        createPair("Alergias", getVal('alergias')),
+                        createPair("Reacciones Adversas", getVal('ram')),
+                        createPair("Hábitos", `Tabaco: ${getRadio('tabaco')} IPA: ${getVal('ipaValue')} | Alcohol: ${getRadio('alcohol')} | Drogas: ${getRadio('drogas')} ${getVal('drogasNombreValue')}`),
+                        createPair("Inmunizaciones", getVal('inmunizaciones')),
+                        createPair("Ocupación", getVal('ocupacion')),
+                        createPair("Red de Apoyo", getVal('redApoyo')),
+                        createPair("Hospitalizaciones recientes", getVal('hospitalizacionesRecientes'))
+                    ] : []),
+
+                    ...(incluir('gineco') ? goParrafos : []),
+
+                    ...(incluir('diagnosticos') ? [
+                        createHeader(tit('diagnosticos', "DIAGNÓSTICOS DE TRABAJO")),
+                        new Paragraph({ text: getVal('diagnosticos') })
+                    ] : []),
+
+                    ...(incluir('historia') ? [
+                        createHeader(tit('historia', "HISTORIA CLÍNICA")),
+                        new Paragraph({ text: historiaTexto })
+                    ] : []),
+
+                    ...((incluir('condiciones') || incluir('examen')) ? [createHeader(tit('condiciones', "CONDICIONES ACTUALES"))] : []),
+                    ...(incluir('condiciones') ? [new Paragraph({ text: getVal('condicionesActuales') })] : []),
+                    ...(incluir('examen') ? [
+                        new Paragraph({ children: [new TextRun({ text: "Examen Físico:", bold: true })], spacing: { before: 200 } }),
+                        new Paragraph({ text: getVal('examenFisico') })
+                    ] : []),
+
+                    ...(paraclinicos.length ? [createHeader("LABORATORIO E IMÁGENES"), ...paraclinicos] : []),
+
+                    ...(incluir('indicaciones') ? [
+                        createHeader(tit('indicaciones', "INDICACIONES")),
+                        createPair("Reposo", document.getElementById('reposo').value),
+                        createPair("Régimen", document.getElementById('regimen').value),
+                        createPair("Soporte ventilatorio", soporteVent),
+                        createPair("Monitorización", `${monitoreo} ${tipoMonit} ${signVitales}`.trim()),
+                        createPair("Contenciones", contencion),
+                        createPair("Medidas de cuidado (MAE/UPP)", dmae),
+                        createPair("Insulina y control HGT", hgtIc),
+                        createPair("Cuantificación de diuresis", diuresis),
+                        createPair("Terapia kinésica respiratoria (KTR)", ktr),
+                        createPair("Terapia kinésica motora (KTM)", ktm),
+                        createHeader("DISPOSITIVOS INVASIVOS"),
+                        new Paragraph({ text: invasivos }),
+                        createHeader("CENTINELAS"),
+                        new Paragraph({ text: centinelas })
+                    ] : []),
+
+                    ...(incluir('planes') ? [
+                        createHeader(tipoDoc === 'Epicrisis' ? "PLAN" : "PLANES"),
+                        createPair("Hemodinamia", getVal('planHemodinamia')),
+                        createPair("Respiratorio", getVal('planRespiratorio')),
+                        createPair("Cirugía", getVal('planCirugia')),
+                        createPair("Infectología", getVal('planInfectologia')),
+                        createPair("Metabólico", getVal('planMetabolico')),
+                        createPair("Renal", getVal('planRenal')),
+                        createHeader("FÁRMACOS ACTUALES"),
+                        ...(farmacosData.length
+                            ? farmacosData.map(f => new Paragraph({
+                                text: `${f.nombre} - ${f.presentacion} - ${f.dosis} - ${f.frecuencia} - ${f.via} - ${f.duracion}`,
+                                bullet: { level: 0 }
+                              }))
+                            : [new Paragraph({ text: 'Sin fármacos registrados' })]),
+                        createHeader(tipoDoc === 'Epicrisis' ? "CONTROLES Y SEGUIMIENTO" : "PENDIENTES"),
+                        new Paragraph({ text: getVal('pendientes') })
+                    ] : []),
+
+                    // Firmas (siempre)
+                    createHeader("FIRMAS"),
+                    new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        borders: NO_BORDERS,
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    sigCell(getVal('internoNombre'), 'Interno(a) de Medicina', getVal('internoUniversidad'), ''),
+                                    sigCell(getVal('medicoNombre'), `Médico${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}`, getVal('medicoHospital'), '')
+                                ]
+                            })
+                        ]
+                    })
+                ];
+
                 const doc = new Document({
                     sections: [{
                         properties: {
                             page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } }
                         },
-                        children: [
-                            new Paragraph({ text: `${(getVal('tipoDocumento') || 'FICHA').toUpperCase()} — MEDICINA`, heading: docx.HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
-                            new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: `${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, size: 22, color: "555555" })] }),
-                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [new TextRun({ text: `Sala/Cama: ${getVal('salaCama') || '—'}   •   Fecha: ${formatDate(getVal('fechaActual')) || '—'}`, size: 18, color: "777777" })] }),
-
-                            // Datos Paciente (tabla de identificación)
-                            createHeader("DATOS DEL PACIENTE"),
-                            new Table({
-                                width: { size: 100, type: WidthType.PERCENTAGE },
-                                borders: NO_BORDERS,
-                                rows: [
-                                    idRow("Nombre", nombre),
-                                    idRow("RUT", getVal('pacienteRUT')),
-                                    idRow("Edad", getVal('pacienteEdad')),
-                                    idRow("Sala / Cama", getVal('salaCama')),
-                                    idRow("Servicio de ingreso", getVal('servicioIngreso')),
-                                    idRow("Fecha ingreso SU", formatDate(getVal('fechaSU'))),
-                                    idRow("Fecha ingreso al servicio", formatDate(getVal('fechaServicio'))),
-                                    idRow("Fecha del documento", formatDate(getVal('fechaActual')))
-                                ]
-                            }),
-
-                            // Antecedentes
-                            createHeader("ANTECEDENTES"),
-                            createPair("Mórbidos", getVal('antecedentesMoviles')),
-                            createPair("Quirúrgicos", getVal('antecedentesQuirurgicos')),
-                            createPair("Fármacos de uso crónico", getVal('farmacos')),
-                            createPair("Alergias", getVal('alergias')),
-                            createPair("Reacciones Adversas", getVal('ram')),
-                            createPair("Hábitos", `Tabaco: ${getRadio('tabaco')} IPA: ${getVal('ipaValue')} | Alcohol: ${getRadio('alcohol')} | Drogas: ${getRadio('drogas')} ${getVal('drogasNombreValue')}`),
-                            createPair("Inmunizaciones", getVal('inmunizaciones')),
-                            createPair("Ocupación", getVal('ocupacion')),
-                            createPair("Red de Apoyo", getVal('redApoyo')),
-                            createPair("Hospitalizaciones recientes", getVal('hospitalizacionesRecientes')),
-
-                            // Antecedentes gineco-obstétricos (si aplica)
-                            ...goParrafos,
-
-                            // Diagnosticos
-                            createHeader("DIAGNÓSTICOS DE TRABAJO"),
-                            new Paragraph({ text: getVal('diagnosticos') }),
-
-                            // Historia
-                            createHeader("HISTORIA CLÍNICA"),
-                            new Paragraph({ text: historiaTexto }),
-
-                            // Examen Físico
-                            createHeader("CONDICIONES ACTUALES"),
-                            new Paragraph({ text: getVal('condicionesActuales') }),
-                            new Paragraph({ children: [ new TextRun({ text: "Examen Físico:", bold: true }) ], spacing: { before: 200 } }),
-                            new Paragraph({ text: getVal('examenFisico') }),
-
-                            // Paraclinicos
-                            createHeader("LABORATORIO E IMÁGENES"),
-                            createPair("Laboratorio", getVal('laboratorios')),
-                            createPair("Laboratorio orina", getVal('laboratorioOrina')),
-                            createPair("Laboratorio fluidos", getVal('laboratorioFluidos')),
-                            createPair("Imágenes", getVal('imagenes')),
-                            createPair("Microbiología", getVal('microbiologia')),
-                            createPair("Procedimientos", getVal('procedimientos')),
-                            createPair("Electrofisiológicos", getVal('electrofisiologia')),
-                            createPair("Estudios funcionales", getVal('funcionalesSA')),
-
-                            // Indicaciones
-                            createHeader("INDICACIONES"),
-                            createPair("Reposo", document.getElementById('reposo').value),
-                            createPair("Régimen", document.getElementById('regimen').value),
-                            createPair("Soporte ventilatorio", soporteVent),
-                            createPair("Monitorización", `${monitoreo} ${tipoMonit} ${signVitales}`.trim()),
-                            createPair("Contenciones", contencion),
-                            createPair("Medidas de cuidado (MAE/UPP)", dmae),
-                            createPair("Insulina y control HGT", hgtIc),
-                            createPair("Cuantificación de diuresis", diuresis),
-                            createPair("Terapia kinésica respiratoria (KTR)", ktr),
-                            createPair("Terapia kinésica motora (KTM)", ktm),
-
-                            // Dispositivos invasivos
-                            createHeader("DISPOSITIVOS INVASIVOS"),
-                            new Paragraph({ text: invasivos }),
-
-                            // CENTINELAS
-                            createHeader("CENTINELAS"),
-                            new Paragraph({ text: centinelas }),
-                            
-                            // Planes
-                            createHeader("PLANES"),
-                            createPair("Hemodinamia", getVal('planHemodinamia')),
-                            createPair("Respiratorio", getVal('planRespiratorio')),
-                            createPair("Cirugía", getVal('planCirugia')),
-                            createPair("Infectología", getVal('planInfectologia')),
-                            createPair("Metabólico", getVal('planMetabolico')),
-                            createPair("Renal", getVal('planRenal')),
-
-                            // Farmacos Activos
-                            createHeader("FÁRMACOS ACTUALES"),
-                            ...(farmacosData.length
-                                ? farmacosData.map(f => new Paragraph({
-                                    text: `${f.nombre} - ${f.presentacion} - ${f.dosis} - ${f.frecuencia} - ${f.via} - ${f.duracion}`,
-                                    bullet: { level: 0 }
-                                  }))
-                                : [new Paragraph({ text: 'Sin fármacos registrados' })]),
-
-                            // Pendientes
-                            createHeader("PENDIENTES"),
-                            new Paragraph({ text: getVal('pendientes') }),
-
-                            // Firmas
-                            createHeader("FIRMAS"),
-                            new Table({
-                                width: { size: 100, type: WidthType.PERCENTAGE },
-                                borders: NO_BORDERS,
-                                rows: [
-                                    new TableRow({
-                                        children: [
-                                            sigCell(getVal('internoNombre'), 'Interno(a) de Medicina', getVal('internoUniversidad'), ''),
-                                            sigCell(getVal('medicoNombre'), `Médico${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}`, getVal('medicoHospital'), '')
-                                        ]
-                                    })
-                                ]
-                            })
-                        ]
+                        children: docChildren
                     }]
                 });
 
