@@ -7,7 +7,7 @@
  * IMPORTANTE: al publicar cambios, sube el número de versión (CACHE_VERSION)
  * para que los dispositivos descarguen la versión nueva.
  */
-const CACHE_VERSION = 'faster-v0.5.2';
+const CACHE_VERSION = 'faster-v0.6.0';
 
 // Rutas relativas para que funcione tanto en la raíz del dominio como en un
 // subdirectorio (p. ej. GitHub Pages: usuario.github.io/fast-er/).
@@ -20,7 +20,8 @@ const ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './assets/logo.png'
 ];
 
 self.addEventListener('install', (event) => {
