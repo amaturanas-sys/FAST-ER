@@ -268,6 +268,61 @@
             margin: 0 auto 10px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ===== Mejoras de interfaz: navegación rápida, colapsables y barra fija ===== */
+        .quick-nav {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(4px);
+            border-bottom: 1px solid var(--color-border);
+            padding: 10px 0;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .quick-nav .qn-label { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; margin-right: 4px; }
+        .quick-nav a {
+            font-size: 12px;
+            text-decoration: none;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 14px;
+            padding: 3px 10px;
+            white-space: nowrap;
+        }
+        .quick-nav a:hover { background: var(--color-primary); color: #fff; }
+
+        /* Secciones colapsables: clic en el título */
+        .section { scroll-margin-top: 70px; }
+        .section > h2 { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 8px; }
+        .section > h2::before {
+            content: "▾";
+            font-size: 0.7em;
+            color: var(--color-primary);
+            transition: transform 0.2s;
+        }
+        .section.collapsed > h2::before { content: "▸"; }
+        .section.collapsed > *:not(h2) { display: none; }
+
+        /* Barra de acciones fija al pie */
+        .buttons-section {
+            position: sticky;
+            bottom: 0;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+            z-index: 950;
+        }
+
+        @media (max-width: 600px) {
+            .btn-primary, .btn-secondary { padding: 10px 16px; font-size: 14px; }
+            .buttons-section { gap: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -281,6 +336,10 @@
         </header>
         
         <form id="fichaForm">
+            <nav id="quickNav" class="quick-nav" aria-label="Navegación rápida">
+                <span class="qn-label">Ir a:</span>
+            </nav>
+
             <div class="section">
                 <h2>Encabezado</h2>
                 <div class="form-row">
@@ -333,6 +392,21 @@
                         <label for="pacienteRUT">RUT (00.000.000-0) <span class="required">*</span></label>
                         <input type="text" id="pacienteRUT" placeholder="Ej: 15.234.567-8" pattern="\d{2}\.\d{3}\.\d{3}-[0-9K]" required>
                     </div>
+
+                    <div class="form-group">
+                        <label>Sexo</label>
+                        <div class="radio-group" style="margin-top: 8px;">
+                            <div class="radio-item">
+                                <input type="radio" id="sexoM" name="sexo" value="Masculino">
+                                <label for="sexoM">Masculino</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="sexoF" name="sexo" value="Femenino">
+                                <label for="sexoF">Femenino</label>
+                            </div>
+                        </div>
+                        <div class="help-text">Selecciona "Femenino" para habilitar la sección gineco-obstétrica.</div>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -354,7 +428,7 @@
             </div>
 
             <!-- ANTECEDENTES -->
-            <div class="section">
+            <div class="section" id="seccionAntecedentes">
                 <h2>Antecedentes</h2>
 
                 <div class="form-group">
@@ -504,6 +578,111 @@
                 </div>
             </div>
 
+            <!-- ANTECEDENTES GINECO-OBSTÉTRICOS -->
+            <div class="section hidden" id="seccionGO">
+                <h2>Antecedentes Gineco-Obstétricos</h2>
+
+                <div class="sub-section">
+                    <h3>Fórmula Obstétrica</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="goGestas">Gestaciones (G)</label>
+                            <input type="number" id="goGestas" min="0" max="30" placeholder="Ej: 3">
+                        </div>
+                        <div class="form-group">
+                            <label for="goPartos">Partos (P)</label>
+                            <input type="number" id="goPartos" min="0" max="30" placeholder="Ej: 2">
+                        </div>
+                        <div class="form-group">
+                            <label for="goCesareas">Cesáreas (C)</label>
+                            <input type="number" id="goCesareas" min="0" max="30" placeholder="Ej: 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="goAbortos">Abortos (A)</label>
+                            <input type="number" id="goAbortos" min="0" max="30" placeholder="Ej: 0">
+                        </div>
+                    </div>
+                    <div class="help-text">Se resume como fórmula GPA/GPCA en el documento.</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goMenarquia">Menarquia (edad)</label>
+                        <input type="text" id="goMenarquia" placeholder="Ej: 12 años">
+                    </div>
+                    <div class="form-group">
+                        <label for="goFUR">FUR (Fecha última regla)</label>
+                        <input type="date" id="goFUR">
+                    </div>
+                    <div class="form-group">
+                        <label for="goCiclos">Ciclos menstruales</label>
+                        <input type="text" id="goCiclos" placeholder="Ej: regulares 28/4, eumenorrea">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado menstrual</label>
+                        <div class="radio-group" style="margin-top: 8px;">
+                            <div class="radio-item">
+                                <input type="radio" id="goEstadoFertil" name="goEstado" value="Edad fértil">
+                                <label for="goEstadoFertil">Edad fértil</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="goEstadoEmb" name="goEstado" value="Embarazada">
+                                <label for="goEstadoEmb">Embarazada</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="goEstadoMenop" name="goEstado" value="Menopausia">
+                                <label for="goEstadoMenop">Menopausia</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goMAC">Método anticonceptivo (MAC)</label>
+                        <input type="text" id="goMAC" placeholder="Ej: ACO, DIU, implante, ninguno">
+                    </div>
+                </div>
+
+                <div id="goEmbarazoDiv" class="sub-section hidden">
+                    <h3>Embarazo Actual</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="goEG">Edad gestacional (EG)</label>
+                            <input type="text" id="goEG" placeholder="Ej: 32+4 semanas">
+                        </div>
+                        <div class="form-group">
+                            <label for="goFPP">Fecha probable de parto (FPP)</label>
+                            <input type="date" id="goFPP">
+                        </div>
+                        <div class="form-group">
+                            <label for="goControlPrenatal">Control prenatal</label>
+                            <input type="text" id="goControlPrenatal" placeholder="Ej: 5 controles, ARO/bajo riesgo">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goEmbarazoObs">Observaciones del embarazo</label>
+                        <textarea id="goEmbarazoObs" placeholder="Ej: SHE, diabetes gestacional, RCIU, presentación, MMF percibidos, dinámica uterina..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goPAP">PAP (último)</label>
+                        <input type="text" id="goPAP" placeholder="Ej: 03/2025 normal">
+                    </div>
+                    <div class="form-group">
+                        <label for="goMamografia">Mamografía (última)</label>
+                        <input type="text" id="goMamografia" placeholder="Ej: 2024 BIRADS 2">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goAntecedentes">Otros antecedentes gineco-obstétricos</label>
+                    <textarea id="goAntecedentes" placeholder="Ej: SOP, endometriosis, miomatosis, cirugías ginecológicas, ITS, terapia hormonal..."></textarea>
+                </div>
+            </div>
+
             <!-- DIAGNÓSTICO DE TRABAJO -->
             <div class="section">
                 <h2>Diagnóstico de Trabajo</h2>
@@ -511,11 +690,35 @@
                 <div class="form-group">
                     <label for="diagnosticos">Diagnósticos (lista enumerada)</label>
                     <textarea id="diagnosticos" placeholder="1. Sepsis urinaria&#10;2. Insuficiencia renal aguda&#10;3. Anemia&#10;4. Antecedentes de ICC"></textarea>
+                    <div class="suggestion-box">
+                        <strong>Diagnósticos frecuentes (medicina interna):</strong>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Neumonía adquirida en la comunidad')">NAC</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Infección del tracto urinario / ITU')">ITU</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Sepsis (foco a precisar)')">Sepsis</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Shock séptico')">Shock séptico</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Injuria renal aguda (AKI) KDIGO')">AKI</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Insuficiencia cardíaca aguda descompensada')">ICC descompensada</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Fibrilación auricular')">FA</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Síndrome coronario agudo')">SCA</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Exacerbación de EPOC')">EPOC exacerbado</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Crisis asmática')">Crisis asmática</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Accidente cerebrovascular')">ACV</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Hemorragia digestiva')">HDA/HDB</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Descompensación diabética (CAD / SHH)')">CAD/SHH</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Trastorno hidroelectrolítico')">TEL</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Anemia (estudio en curso)')">Anemia</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Tromboembolismo pulmonar')">TEP</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Trombosis venosa profunda')">TVP</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Delirium')">Delirium</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Celulitis')">Celulitis</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Pancreatitis aguda')">Pancreatitis</div>
+                        <div class="suggestion-item" onclick="addToField('diagnosticos', 'Daño hepático crónico descompensado')">DHC descomp.</div>
+                    </div>
                 </div>
             </div>
 
             <!-- HISTORIA CLÍNICA -->
-            <div class="section">
+            <div class="section" id="seccionHistoria">
                 <h2>Historia Clínica</h2>
 
                 <div class="form-group">
@@ -931,6 +1134,19 @@
                 <div class="form-group">
                     <label for="centinelas">Centinelas (eventos a vigilar)</label>
                     <textarea id="centinelas" placeholder="Ej: Caídas, LPP (Lesiones por presión), Agresiones, Desaturación < 88%"></textarea>
+                    <div class="suggestion-box">
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Caídas')">Caídas</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Lesiones por presión (LPP)')">LPP</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Desaturación < 90%')">Desaturación</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Compromiso de conciencia / delirium')">Delirium</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Hemorragia / sangrado activo')">Sangrado</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Hipoglicemia')">Hipoglicemia</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Hipotensión / signos de shock')">Hipotensión</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Fiebre / signos de sepsis')">Fiebre</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Arritmias')">Arritmias</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Broncoaspiración')">Broncoaspiración</div>
+                        <div class="suggestion-item" onclick="addToField('centinelas', 'Retiro accidental de dispositivos')">Retiro dispositivos</div>
+                    </div>
                 </div>
 
                 <div class="sub-section">
@@ -998,31 +1214,70 @@
                     <div class="form-group">
                         <label for="planHemodinamia">Hemodinamia</label>
                         <textarea id="planHemodinamia" placeholder="Ej: Estable sin requerimiento de volumen, DVA ni hipotensores, sin signos de hipoperfusión..."></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('planHemodinamia', 'Estable, sin requerimiento de volumen ni drogas vasoactivas, sin signos de hipoperfusión.')">Estable</div>
+                            <div class="suggestion-item" onclick="addToField('planHemodinamia', 'Normotenso, frecuencia cardíaca en rango, perfusión distal conservada.')">Normotenso</div>
+                            <div class="suggestion-item" onclick="addToField('planHemodinamia', 'Requiere aporte de volumen, se monitoriza respuesta.')">Aporte volumen</div>
+                            <div class="suggestion-item" onclick="addToField('planHemodinamia', 'En soporte con drogas vasoactivas, se titula según metas.')">DVA</div>
+                            <div class="suggestion-item" onclick="addToField('planHemodinamia', 'Manejo de presión arterial, ajuste de antihipertensivos.')">Manejo PA</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="planRespiratorio">Respiratorio</label>
                         <textarea id="planRespiratorio" placeholder="Ej: Se mantiene eupneico, saturando 95% ambiental..."></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('planRespiratorio', 'Eupneico, saturando adecuadamente a FiO2 ambiental, sin requerimiento de O2.')">Eupneico</div>
+                            <div class="suggestion-item" onclick="addToField('planRespiratorio', 'Requerimiento de O2 suplementario, se titula según saturación objetivo.')">Req. O2</div>
+                            <div class="suggestion-item" onclick="addToField('planRespiratorio', 'Broncodilatadores y corticoides según esquema, kinesioterapia respiratoria.')">BD + KTR</div>
+                            <div class="suggestion-item" onclick="addToField('planRespiratorio', 'Vigilar trabajo respiratorio y necesidad de soporte ventilatorio.')">Vigilar</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="planCirugia">Cirugía</label>
                         <textarea id="planCirugia" placeholder="Ej: Se realiza X sin intercurrencias, pendiente control con especialidad..."></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Sin indicación quirúrgica actual.')">Sin indicación</div>
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Evaluado por cirugía, manejo conservador, control evolutivo.')">Conservador</div>
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Pendiente resolución quirúrgica, en preparación preoperatoria.')">Preop</div>
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Postoperatorio sin intercurrencias, manejo de herida y analgesia.')">Postop</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="planInfectologia">Infectología</label>
                         <textarea id="planInfectologia" placeholder="Ej: Paciente cursando cuadro de X con PPII a la baja..."></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('planInfectologia', 'Cursando cuadro infeccioso con parámetros inflamatorios a la baja, buena respuesta a antibioticoterapia.')">PCR a la baja</div>
+                            <div class="suggestion-item" onclick="addToField('planInfectologia', 'Antibioticoterapia empírica ajustada según cultivos y antibiograma.')">ATB según cultivo</div>
+                            <div class="suggestion-item" onclick="addToField('planInfectologia', 'Completar días de antibiótico, día N de X.')">Día N/X ATB</div>
+                            <div class="suggestion-item" onclick="addToField('planInfectologia', 'Afebril, hemodinámicamente estable, se evalúa switch a vía oral.')">Switch VO</div>
+                            <div class="suggestion-item" onclick="addToField('planInfectologia', 'Pendiente foco infeccioso, se solicitan cultivos e imágenes.')">Estudio foco</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="planMetabolico">Metabólico</label>
                         <textarea id="planMetabolico" placeholder="Ej: Paciente con glicemias en rango 100-150, requiere insulina..."></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Glicemias en rango, control con HGT, esquema de insulina basal-bolo según necesidad.')">Glicemias/HGT</div>
+                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Corrección de trastorno hidroelectrolítico, control seriado de ELP.')">Corrección TEL</div>
+                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Soporte nutricional según requerimientos, evaluación por nutrición.')">Nutrición</div>
+                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Manejo de función tiroidea / endocrino según corresponda.')">Endocrino</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="planRenal">Renal</label>
                         <textarea id="planRenal" placeholder="Ej: AKI sobre ERC, Creatinina actual vs basal, sin trastornos electrolíticos..."></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Función renal conservada, sin trastornos electrolíticos ni ácido-base.')">Conservada</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Injuria renal aguda (KDIGO), se optimiza volemia y se evitan nefrotóxicos.')">AKI KDIGO</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'ERC en seguimiento, ajuste de fármacos según función renal.')">ERC</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Balance hídrico estricto, control de diuresis.')">Balance hídrico</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Evaluación por nefrología, valorar necesidad de terapia de reemplazo renal.')">Nefro/TRR</div>
+                        </div>
                     </div>
                 </div>
 
@@ -1045,6 +1300,18 @@
                     <div class="form-group">
                         <label for="pendientes">Actividades pendientes (una por línea)</label>
                         <textarea id="pendientes" placeholder="- Realizar/informar exámenes de imagen&#10;- Realizar/informar exámenes de laboratorio&#10;- Completar ATB y curaciones por especialidad&#10;- Control metabólico, ajuste de insulina"></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Control de exámenes de laboratorio')">Control laboratorio</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Informe de imágenes pendiente')">Informe imágenes</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Resultado de cultivos / microbiología')">Cultivos</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Evaluación por especialidad')">Interconsulta</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Ajuste de antibioticoterapia')">Ajuste ATB</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Evaluar criterios de alta')">Criterios de alta</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Conciliación de medicamentos')">Conciliación fármacos</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Gestión de red / asistente social')">Gestión red</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Profilaxis de TVP / tromboprofilaxis')">Tromboprofilaxis</div>
+                            <div class="suggestion-item" onclick="addToField('pendientes', '- Retiro de dispositivos invasivos según evolución')">Retiro dispositivos</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1085,7 +1352,10 @@
 
             <!-- BOTONES DE ACCIÓN -->
             <div class="buttons-section">
-                <button type="button" class="btn-secondary" onclick="limpiarFormulario()">Limpiar Formulario</button>
+                <button type="button" class="btn-secondary" onclick="limpiarFormulario()">🧹 Limpiar</button>
+                <button type="button" class="btn-secondary" onclick="exportFicha()" title="Guardar la ficha como archivo para reutilizarla luego (Evolución / Epicrisis)">⬆️ Exportar (.json)</button>
+                <button type="button" class="btn-secondary" onclick="document.getElementById('importFichaInput').click()" title="Cargar una ficha previamente exportada">⬇️ Importar (.json)</button>
+                <input type="file" id="importFichaInput" accept="application/json,.json" style="display:none" onchange="importFichaFile(this)">
                 <button type="button" class="btn-primary" onclick="generarDocumento()">
                     📥 Descargar Ficha (.docx)
                 </button>
@@ -1100,7 +1370,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.3 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.4 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1113,7 +1383,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.3 alpha // 08-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.4 alpha // 08-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -1227,9 +1497,24 @@
                 });
             });
 
+            // Sexo → muestra/oculta la sección gineco-obstétrica
+            document.querySelectorAll('input[name="sexo"]').forEach(radio => {
+                radio.addEventListener('change', actualizarVisibilidadGO);
+            });
+            // Estado menstrual → muestra/oculta el subbloque de embarazo
+            document.querySelectorAll('input[name="goEstado"]').forEach(radio => {
+                radio.addEventListener('change', actualizarVisibilidadGO);
+            });
+
+            // Tipo de documento → ajusta secciones visibles según el tipo
+            document.getElementById('tipoDocumento').addEventListener('change', aplicarVisibilidadPorTipo);
+
             // Set fecha actual
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('fechaActual').value = today;
+
+            // Interfaz: navegación rápida + secciones colapsables
+            initUX();
 
             // Autoguardado: restaurar la última ficha y empezar a guardar cambios
             restoreState();
@@ -1273,12 +1558,8 @@
             _saveTimer = setTimeout(saveStateNow, 400);
         }
 
-        function restoreState() {
-            let raw;
-            try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
-            if (!raw) return;
-            let state;
-            try { state = JSON.parse(raw); } catch (e) { return; }
+        function applyState(state) {
+            if (!state || typeof state !== 'object') return;
 
             if (Array.isArray(state.farmacos)) {
                 farmacosData = state.farmacos;
@@ -1299,15 +1580,137 @@
             });
 
             // Re-disparar los cambios para que los campos condicionales reaparezcan
-            ['tabaco', 'drogas', 'aislamiento', 'o2Soporte', 'monitoreo', 'historiaMode'].forEach(name => {
+            ['tabaco', 'drogas', 'aislamiento', 'o2Soporte', 'monitoreo', 'historiaMode', 'sexo'].forEach(name => {
                 const checked = document.querySelector(`input[name="${name}"]:checked`);
                 if (checked) checked.dispatchEvent(new Event('change'));
             });
-            if (document.getElementById('tipoO2').value) updateO2Fields();
+            if (document.getElementById('tipoO2') && document.getElementById('tipoO2').value) updateO2Fields();
+            if (typeof actualizarVisibilidadGO === 'function') actualizarVisibilidadGO();
+            if (typeof aplicarVisibilidadPorTipo === 'function') aplicarVisibilidadPorTipo();
+        }
+
+        function restoreState() {
+            let raw;
+            try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
+            if (!raw) return;
+            let state;
+            try { state = JSON.parse(raw); } catch (e) { return; }
+            applyState(state);
+        }
+
+        // ============ EXPORTAR / IMPORTAR FICHA (formato JSON estándar) ============
+        // Permite guardar una ficha como archivo y reutilizarla después para crear
+        // una Evolución o una Epicrisis a partir de datos previos.
+        const FICHA_FORMAT = 'FAST-ER-ficha';
+        const FICHA_VERSION = 1;
+
+        function exportFicha() {
+            const payload = {
+                format: FICHA_FORMAT,
+                version: FICHA_VERSION,
+                exportedAt: new Date().toISOString(),
+                data: collectState()
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const nombre = (document.getElementById('pacienteNombre').value || 'ficha').trim().replace(/\s+/g, '_') || 'ficha';
+            const rut = (document.getElementById('pacienteRUT').value || '').replace(/[.\-\s]/g, '');
+            const fecha = document.getElementById('fechaActual').value || new Date().toISOString().split('T')[0];
+            saveAs(blob, `FASTER_${nombre}${rut ? '_' + rut : ''}_${fecha}.json`);
+        }
+
+        function importFichaFile(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    // Acepta el envoltorio estándar {format, data} o un estado crudo
+                    const data = (parsed && parsed.data && parsed.data.fields) ? parsed.data : parsed;
+                    if (!data || typeof data !== 'object' || !data.fields) {
+                        alert('El archivo no parece una ficha FAST-ER válida (falta el campo "fields").');
+                        return;
+                    }
+                    if (!confirm('Importar reemplazará los datos actuales del formulario con los de la ficha seleccionada. ¿Continuar?')) {
+                        return;
+                    }
+                    document.getElementById('fichaForm').reset();
+                    farmacosData = [];
+                    document.getElementById('farmacosList').innerHTML = '';
+                    applyState(data);
+                    saveStateNow();
+                    alert('Ficha importada correctamente.\n\nAhora puede cambiar el "Tipo de Documento" (por ejemplo a Evolución o Epicrisis) y actualizar lo que corresponda antes de descargar.');
+                } catch (err) {
+                    alert('No se pudo leer el archivo: ' + err.message);
+                } finally {
+                    input.value = '';
+                }
+            };
+            reader.readAsText(file);
         }
 
         function clearSavedState() {
             try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        }
+
+        // Muestra la sección gineco-obstétrica si Sexo = Femenino,
+        // y el subbloque de Embarazo si el estado menstrual es "Embarazada".
+        function actualizarVisibilidadGO() {
+            const sexo = document.querySelector('input[name="sexo"]:checked');
+            const esFemenino = !!sexo && sexo.value === 'Femenino';
+            const seccion = document.getElementById('seccionGO');
+            if (seccion) seccion.classList.toggle('hidden', !esFemenino);
+            const estado = document.querySelector('input[name="goEstado"]:checked');
+            const emb = esFemenino && !!estado && estado.value === 'Embarazada';
+            const embDiv = document.getElementById('goEmbarazoDiv');
+            if (embDiv) embDiv.classList.toggle('hidden', !emb);
+            if (typeof refreshNav === 'function') refreshNav();
+        }
+
+        // Para una Evolución, las secciones de antecedentes/historia suelen venir
+        // de una ficha previa (importada): se colapsan por defecto para ir más rápido.
+        // Siguen accesibles con un clic. En Ingreso/Epicrisis se muestran expandidas.
+        function aplicarVisibilidadPorTipo() {
+            const tipoEl = document.getElementById('tipoDocumento');
+            if (!tipoEl) return;
+            const colapsar = tipoEl.value === 'Evolución';
+            ['seccionAntecedentes', 'seccionHistoria', 'seccionGO'].forEach(id => {
+                const sec = document.getElementById(id);
+                if (sec) sec.classList.toggle('collapsed', colapsar);
+            });
+            refreshNav();
+        }
+
+        // Construye la navegación rápida y habilita el colapso por clic en cada título.
+        function initUX() {
+            const nav = document.getElementById('quickNav');
+            document.querySelectorAll('#fichaForm .section').forEach((sec, i) => {
+                const h2 = sec.querySelector(':scope > h2');
+                if (!h2) return;
+                if (!sec.id) sec.id = 'sec-' + i;
+                h2.addEventListener('click', () => sec.classList.toggle('collapsed'));
+                if (nav) {
+                    const a = document.createElement('a');
+                    a.href = '#' + sec.id;
+                    a.textContent = h2.textContent.trim();
+                    a.dataset.target = sec.id;
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        sec.classList.remove('collapsed');
+                        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                    nav.appendChild(a);
+                }
+            });
+            refreshNav();
+        }
+
+        // Oculta del menú las secciones que no están visibles (p. ej. gineco-obstétrica).
+        function refreshNav() {
+            document.querySelectorAll('#quickNav a').forEach(a => {
+                const t = document.getElementById(a.dataset.target);
+                a.style.display = (t && t.classList.contains('hidden')) ? 'none' : '';
+            });
         }
 
         // Pequeño aviso visual de "Guardado"
@@ -1642,6 +2045,34 @@
                     spacing: { after: 120 }
                 });
 
+                // Bloque gineco-obstétrico para el documento (sólo si Sexo = Femenino)
+                const esFemenino = getRadio('sexo') === 'Femenino';
+                const goParrafos = [];
+                if (esFemenino) {
+                    const g = getVal('goGestas'), p = getVal('goPartos'), c = getVal('goCesareas'), a = getVal('goAbortos');
+                    const formula = (g || p || c || a) ? `G${g || 0} P${p || 0} C${c || 0} A${a || 0}` : '';
+                    const goEstado = getRadio('goEstado');
+                    goParrafos.push(createHeader("ANTECEDENTES GINECO-OBSTÉTRICOS"));
+                    if (formula) goParrafos.push(createPair("Fórmula obstétrica", formula));
+                    if (goEstado && goEstado !== 'No') goParrafos.push(createPair("Estado", goEstado));
+                    if (getVal('goMenarquia')) goParrafos.push(createPair("Menarquia", getVal('goMenarquia')));
+                    if (getVal('goFUR')) goParrafos.push(createPair("FUR", formatDate(getVal('goFUR'))));
+                    if (getVal('goCiclos')) goParrafos.push(createPair("Ciclos", getVal('goCiclos')));
+                    if (getVal('goMAC')) goParrafos.push(createPair("MAC", getVal('goMAC')));
+                    if (goEstado === 'Embarazada') {
+                        const emb = [
+                            getVal('goEG') ? 'EG ' + getVal('goEG') : '',
+                            getVal('goFPP') ? 'FPP ' + formatDate(getVal('goFPP')) : '',
+                            getVal('goControlPrenatal') ? 'Control: ' + getVal('goControlPrenatal') : ''
+                        ].filter(Boolean).join(' · ');
+                        if (emb) goParrafos.push(createPair("Embarazo actual", emb));
+                        if (getVal('goEmbarazoObs')) goParrafos.push(createPair("Observaciones embarazo", getVal('goEmbarazoObs')));
+                    }
+                    if (getVal('goPAP')) goParrafos.push(createPair("PAP", getVal('goPAP')));
+                    if (getVal('goMamografia')) goParrafos.push(createPair("Mamografía", getVal('goMamografia')));
+                    if (getVal('goAntecedentes')) goParrafos.push(createPair("Otros antecedentes GO", getVal('goAntecedentes')));
+                }
+
                 const { AlignmentType } = docx;
                 const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
                 const NO_BORDERS = {
@@ -1719,7 +2150,10 @@
                             createPair("Ocupación", getVal('ocupacion')),
                             createPair("Red de Apoyo", getVal('redApoyo')),
                             createPair("Hospitalizaciones recientes", getVal('hospitalizacionesRecientes')),
-                            
+
+                            // Antecedentes gineco-obstétricos (si aplica)
+                            ...goParrafos,
+
                             // Diagnosticos
                             createHeader("DIAGNÓSTICOS DE TRABAJO"),
                             new Paragraph({ text: getVal('diagnosticos') }),
