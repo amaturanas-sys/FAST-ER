@@ -295,6 +295,18 @@
             white-space: nowrap;
         }
         .quick-nav a:hover { background: var(--color-primary); color: #fff; }
+        .quick-nav .qn-actions { display: inline-flex; gap: 6px; margin-right: 6px; }
+        .quick-nav .qn-btn {
+            font-size: 12px;
+            cursor: pointer;
+            background: var(--color-bg-light);
+            border: 1px solid var(--color-border);
+            border-radius: 14px;
+            padding: 3px 10px;
+            color: var(--color-text);
+            font-family: inherit;
+        }
+        .quick-nav .qn-btn:hover { background: var(--color-primary); color: #fff; }
 
         /* Secciones colapsables: clic en el título */
         .section { scroll-margin-top: 70px; }
@@ -1733,27 +1745,41 @@
             if (typeof refreshNav === 'function') refreshNav();
         }
 
-        // Para una Evolución, las secciones de antecedentes/historia suelen venir
-        // de una ficha previa (importada): se colapsan por defecto para ir más rápido.
-        // Siguen accesibles con un clic. En Ingreso/Epicrisis se muestran expandidas.
+        // Con "colapsar todo por defecto", la visibilidad por tipo ya no fuerza el
+        // colapso de secciones; sólo refresca el menú (hook para futuros ajustes por tipo).
         function aplicarVisibilidadPorTipo() {
-            const tipoEl = document.getElementById('tipoDocumento');
-            if (!tipoEl) return;
-            const colapsar = tipoEl.value === 'Evolución';
-            ['seccionAntecedentes', 'seccionHistoria', 'seccionGO'].forEach(id => {
-                const sec = document.getElementById(id);
-                if (sec) sec.classList.toggle('collapsed', colapsar);
-            });
             refreshNav();
         }
 
-        // Construye la navegación rápida y habilita el colapso por clic en cada título.
+        // Expande o colapsa todas las secciones a la vez.
+        function setAllCollapsed(collapsed) {
+            document.querySelectorAll('#fichaForm .section').forEach(sec => {
+                sec.classList.toggle('collapsed', collapsed);
+            });
+        }
+
+        // Construye la navegación rápida, los controles "Expandir/Colapsar todo"
+        // y habilita el colapso por clic en cada título. Las secciones arrancan colapsadas.
         function initUX() {
             const nav = document.getElementById('quickNav');
+            if (nav) {
+                const actions = document.createElement('span');
+                actions.className = 'qn-actions';
+                const bExp = document.createElement('button');
+                bExp.type = 'button'; bExp.className = 'qn-btn'; bExp.textContent = '⊕ Expandir todo';
+                bExp.addEventListener('click', () => setAllCollapsed(false));
+                const bCol = document.createElement('button');
+                bCol.type = 'button'; bCol.className = 'qn-btn'; bCol.textContent = '⊖ Colapsar todo';
+                bCol.addEventListener('click', () => setAllCollapsed(true));
+                actions.appendChild(bExp);
+                actions.appendChild(bCol);
+                nav.appendChild(actions);
+            }
             document.querySelectorAll('#fichaForm .section').forEach((sec, i) => {
                 const h2 = sec.querySelector(':scope > h2');
                 if (!h2) return;
                 if (!sec.id) sec.id = 'sec-' + i;
+                sec.classList.add('collapsed'); // colapsadas por defecto
                 h2.addEventListener('click', () => sec.classList.toggle('collapsed'));
                 if (nav) {
                     const a = document.createElement('a');
