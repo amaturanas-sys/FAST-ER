@@ -1,0 +1,45 @@
+name: Deploy PWA to GitHub Pages
+
+# Publica el sitio estático (la PWA) en GitHub Pages.
+# Se ejecuta al hacer push a main y también de forma manual.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos necesarios para desplegar en Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un solo despliegue a la vez
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Habilita Pages automáticamente la primera vez (source = GitHub Actions)
+          enablement: true
+
+      - name: Subir artefacto del sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Publica la raíz del repositorio (index.html, vendor/, icons/, etc.)
+          path: '.'
+
+      - name: Desplegar en Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -68,6 +68,20 @@ scripts/
   make-icons.cjs         Genera los íconos PNG (cruz médica) sin dependencias
 ```
 
+### Publicación en GitHub Pages
+
+El repositorio incluye un workflow (`.github/workflows/deploy-pages.yml`) que publica la app
+automáticamente en **GitHub Pages** cada vez que se hace push a `main` (o ejecutándolo
+manualmente desde la pestaña *Actions* → *Deploy PWA to GitHub Pages* → *Run workflow*).
+
+Pasos la primera vez:
+
+1. Fusiona los cambios a la rama `main`.
+2. El workflow se ejecuta solo e **intenta habilitar Pages automáticamente**. Si tu repo no
+   lo permite, ve a *Settings → Pages → Build and deployment → Source: **GitHub Actions***.
+3. La URL pública aparecerá en la ejecución del workflow (algo como
+   `https://<usuario>.github.io/FAST-ER/`). Ábrela en el celular y *Instalar app*.
+
 ### Al publicar una versión nueva
 
 Sube el número de versión en `service-worker.js` (`CACHE_VERSION`) para que los dispositivos
