@@ -362,9 +362,108 @@
             .buttons-section { gap: 8px; }
             .form-row { grid-template-columns: 1fr; }
         }
+
+        /* ===== Paso 1: pantalla de elección del tipo de documento ===== */
+        .tipo-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: linear-gradient(160deg, #f4f6f9 0%, #e7ecf3 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .tipo-gate.hidden { display: none !important; }
+        .tipo-gate-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            border-top: 4px solid var(--color-accent);
+            padding: 28px 24px 32px;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+        }
+        .tipo-gate-card .logo-img { max-width: 240px; margin-bottom: 8px; }
+        .tipo-gate-card h2 { color: var(--color-primary); margin: 6px 0 4px; font-size: 20px; }
+        .tipo-gate-sub { color: #667; font-size: 13px; margin: 0 0 20px; }
+        .tipo-gate-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .tipo-opt {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 18px 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .tipo-opt:hover {
+            border-color: var(--color-primary);
+            background: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(23,58,99,0.25);
+        }
+        .tipo-opt:hover .tipo-opt-titulo,
+        .tipo-opt:hover .tipo-opt-desc { color: #fff; }
+        .tipo-opt-titulo { font-size: 17px; font-weight: 700; color: var(--color-primary); }
+        .tipo-opt-desc { font-size: 11px; color: #778; }
+
+        /* Sección oculta por el tipo de documento */
+        .tipo-oculto { display: none !important; }
+
+        /* Indicador del tipo actual en la mini-barra */
+        .tipo-actual {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--color-primary);
+            font-weight: 600;
+            background: var(--color-bg-light);
+            border: 1px solid var(--color-border);
+            border-radius: 14px;
+            padding: 3px 12px;
+        }
+        .tipo-actual .tipo-cambiar {
+            cursor: pointer;
+            color: var(--color-accent);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .tipo-gate-buttons { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+    <!-- PASO 1: elección del tipo de documento -->
+    <div id="tipoGate" class="tipo-gate">
+        <div class="tipo-gate-card">
+            <img src="assets/logo.png" alt="FAST-E.R." class="logo-img" onerror="this.style.display='none'">
+            <h2>¿Qué documento vas a generar?</h2>
+            <p class="tipo-gate-sub">Elige el tipo de ficha. Esto define qué secciones aparecen y en qué orden.</p>
+            <div class="tipo-gate-buttons">
+                <button type="button" class="tipo-opt" onclick="elegirTipo('Ingreso')">
+                    <span class="tipo-opt-titulo">Ingreso</span>
+                    <span class="tipo-opt-desc">Ficha de ingreso completa</span>
+                </button>
+                <button type="button" class="tipo-opt" onclick="elegirTipo('Evolución')">
+                    <span class="tipo-opt-titulo">Evolución</span>
+                    <span class="tipo-opt-desc">Nota diaria enfocada</span>
+                </button>
+                <button type="button" class="tipo-opt" onclick="elegirTipo('Epicrisis')">
+                    <span class="tipo-opt-titulo">Epicrisis</span>
+                    <span class="tipo-opt-desc">Resumen de egreso</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <div class="image">
@@ -1471,7 +1570,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.6 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.7 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1484,7 +1583,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.6 alpha // 08-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.7 alpha // 08-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -1624,6 +1723,9 @@
             form.addEventListener('change', saveState);
             form.addEventListener('input', updateSectionIndicators);
             form.addEventListener('change', updateSectionIndicators);
+
+            // Paso 1: pantalla de elección del tipo (o aplica el tipo si ya hay ficha en curso)
+            initTipoFlow();
         });
 
         // ====================== AUTOGUARDADO (localStorage) ======================
@@ -1771,25 +1873,100 @@
             updateSectionIndicators();
         }
 
-        // Hook por tipo de documento (actualmente sólo refresca indicadores).
+        // ===== Tipo de documento: qué secciones aparecen y en qué orden =====
+        const TIPO_KEY_BY_TITULO = {
+            'Encabezado': 'encabezado',
+            'Datos del Paciente': 'datos',
+            'Antecedentes': 'antecedentes',
+            'Antecedentes Gineco-Obstétricos': 'gineco',
+            'Diagnóstico de Trabajo': 'diagnosticos',
+            'Historia Clínica': 'historia',
+            'Condiciones Actuales': 'condiciones',
+            'Examen Físico Actual': 'examen',
+            'Laboratorio': 'laboratorio',
+            'Imágenes Médicas': 'imagenes',
+            'Estudios Microbiológicos': 'microbiologia',
+            'Procedimientos Realizados': 'procedimientos',
+            'Estudios Electrofisiológicos': 'electro',
+            'Estudios Funcionales/Ventilatorios': 'funcionales',
+            'Indicaciones': 'indicaciones',
+            'Planes y Problemas': 'planes',
+            'Referencias y Guías Clínicas': 'referencias',
+            'Firmas': 'firmas'
+        };
+        const TIPO_CONFIG = {
+            'Ingreso':    ['encabezado','datos','antecedentes','gineco','diagnosticos','historia','condiciones','examen','laboratorio','imagenes','microbiologia','procedimientos','electro','funcionales','indicaciones','planes','referencias','firmas'],
+            'Evolución':  ['encabezado','datos','diagnosticos','condiciones','examen','laboratorio','imagenes','indicaciones','planes','referencias','firmas'],
+            'Epicrisis':  ['encabezado','datos','diagnosticos','antecedentes','gineco','historia','procedimientos','laboratorio','imagenes','condiciones','indicaciones','planes','referencias','firmas']
+        };
+
+        // Reordena y muestra/oculta las secciones según el tipo de documento.
         function aplicarVisibilidadPorTipo() {
+            const tipo = document.getElementById('tipoDocumento').value;
+            const orden = TIPO_CONFIG[tipo];
+            const form = document.getElementById('fichaForm');
+            const anchor = form.querySelector('.buttons-section');
+            const secs = Array.from(form.querySelectorAll('.section'));
+
+            if (orden) {
+                const byKey = {};
+                secs.forEach(s => { byKey[s.dataset.sec] = s; });
+                secs.forEach(s => s.classList.toggle('tipo-oculto', !orden.includes(s.dataset.sec)));
+                // reordenar: visibles en el orden definido, luego las ocultas
+                orden.forEach(k => { if (byKey[k]) form.insertBefore(byKey[k], anchor); });
+                secs.forEach(s => { if (!orden.includes(s.dataset.sec)) form.insertBefore(s, anchor); });
+            } else {
+                secs.forEach(s => s.classList.remove('tipo-oculto'));
+            }
+            actualizarIndicadorTipo();
             updateSectionIndicators();
         }
 
-        // Expande o colapsa todas las secciones a la vez.
+        // Elección desde la pantalla inicial (gate) o desde "cambiar".
+        function elegirTipo(tipo) {
+            document.getElementById('tipoDocumento').value = tipo;
+            ocultarGate();
+            aplicarVisibilidadPorTipo();
+            saveStateNow();
+        }
+        function mostrarGate() { document.getElementById('tipoGate').classList.remove('hidden'); }
+        function ocultarGate() { document.getElementById('tipoGate').classList.add('hidden'); }
+
+        // Al iniciar: si ya hay tipo (ficha en curso) aplica; si no, muestra el gate.
+        function initTipoFlow() {
+            const tipo = document.getElementById('tipoDocumento').value;
+            if (tipo && TIPO_CONFIG[tipo]) { ocultarGate(); aplicarVisibilidadPorTipo(); }
+            else { mostrarGate(); }
+        }
+
+        // Actualiza el indicador "Tipo: X (cambiar)" de la mini-barra.
+        function actualizarIndicadorTipo() {
+            const val = document.querySelector('#tipoActual .tipo-actual-valor');
+            if (val) val.textContent = document.getElementById('tipoDocumento').value || '—';
+        }
+
+        // Expande o colapsa todas las secciones visibles a la vez.
         function setAllCollapsed(collapsed) {
-            document.querySelectorAll('#fichaForm .section').forEach(sec => {
+            document.querySelectorAll('#fichaForm .section:not(.tipo-oculto)').forEach(sec => {
                 sec.classList.toggle('collapsed', collapsed);
             });
         }
 
-        // Mini-barra "Expandir/Colapsar todo", colapso por clic en el título
-        // e indicadores de sección con datos. Las secciones arrancan colapsadas.
+        // Mini-barra (tipo actual + Expandir/Colapsar), colapso por clic en el título,
+        // claves de sección e indicadores. Las secciones arrancan colapsadas.
         function initUX() {
             const form = document.getElementById('fichaForm');
 
             const toolbar = document.createElement('div');
             toolbar.className = 'secciones-toolbar';
+
+            const tipoInd = document.createElement('span');
+            tipoInd.className = 'tipo-actual';
+            tipoInd.id = 'tipoActual';
+            tipoInd.innerHTML = 'Tipo: <strong class="tipo-actual-valor">—</strong> <span class="tipo-cambiar">cambiar</span>';
+            tipoInd.querySelector('.tipo-cambiar').addEventListener('click', mostrarGate);
+            toolbar.appendChild(tipoInd);
+
             const bExp = document.createElement('button');
             bExp.type = 'button'; bExp.className = 'qn-btn'; bExp.textContent = '⊕ Expandir todo';
             bExp.addEventListener('click', () => setAllCollapsed(false));
@@ -1804,6 +1981,7 @@
                 const h2 = sec.querySelector(':scope > h2');
                 if (!h2) return;
                 if (!sec.id) sec.id = 'sec-' + i;
+                sec.dataset.sec = TIPO_KEY_BY_TITULO[h2.textContent.trim()] || ('sec-' + i);
                 sec.classList.add('collapsed'); // colapsadas por defecto
                 h2.addEventListener('click', () => sec.classList.toggle('collapsed'));
             });
@@ -1920,6 +2098,9 @@
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('fechaActual').value = today;
                 clearSavedState();
+                updateSectionIndicators();
+                // Volver al primer paso: elegir tipo de documento
+                mostrarGate();
             }
         }
 
