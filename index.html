@@ -1642,21 +1642,70 @@
                     spacing: { after: 120 }
                 });
 
+                const { AlignmentType } = docx;
+                const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+                const NO_BORDERS = {
+                    top: noBorder, bottom: noBorder, left: noBorder, right: noBorder,
+                    insideHorizontal: noBorder, insideVertical: noBorder
+                };
+                const lightLine = { style: BorderStyle.SINGLE, size: 2, color: "DDDDDD" };
+
+                // Fila etiqueta/valor para la tabla de identificación del paciente
+                const idRow = (label, value) => new TableRow({
+                    children: [
+                        new TableCell({
+                            width: { size: 32, type: WidthType.PERCENTAGE },
+                            borders: { top: noBorder, left: noBorder, right: noBorder, bottom: lightLine },
+                            children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20 })] })]
+                        }),
+                        new TableCell({
+                            width: { size: 68, type: WidthType.PERCENTAGE },
+                            borders: { top: noBorder, left: noBorder, right: noBorder, bottom: lightLine },
+                            children: [new Paragraph({ children: [new TextRun({ text: value || '—', size: 20 })] })]
+                        })
+                    ]
+                });
+
+                // Celda de firma (línea + nombre + rol + institución)
+                const sigCell = (name, role, org, hosp) => new TableCell({
+                    width: { size: 50, type: WidthType.PERCENTAGE },
+                    borders: NO_BORDERS,
+                    children: [
+                        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 500 }, children: [new TextRun({ text: "_______________________________" })] }),
+                        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: name || '', bold: true })] }),
+                        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: role, size: 18 })] }),
+                        ...(org ? [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: org, size: 18 })] })] : []),
+                        ...(hosp ? [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: hosp, size: 18 })] })] : [])
+                    ]
+                });
+
                 // Construcción de secciones
                 const doc = new Document({
                     sections: [{
+                        properties: {
+                            page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } }
+                        },
                         children: [
-                            new Paragraph({ text: `${getVal('tipoDocumento').toUpperCase()} - MEDICINA`, heading: docx.HeadingLevel.HEADING_1, alignment: docx.AlignmentType.CENTER }),
-                            new Paragraph({ text: `${getVal('hospitalNombre')} - Unidad: ${getVal('unidadNombre')}`, alignment: docx.AlignmentType.CENTER, spacing: { after: 300 } }),
+                            new Paragraph({ text: `${(getVal('tipoDocumento') || 'FICHA').toUpperCase()} — MEDICINA`, heading: docx.HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: `${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, size: 22, color: "555555" })] }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [new TextRun({ text: `Sala/Cama: ${getVal('salaCama') || '—'}   •   Fecha: ${formatDate(getVal('fechaActual')) || '—'}`, size: 18, color: "777777" })] }),
 
-                            // Datos Paciente
+                            // Datos Paciente (tabla de identificación)
                             createHeader("DATOS DEL PACIENTE"),
-                            createPair("Nombre", nombre),
-                            createPair("RUT", getVal('pacienteRUT')),
-                            createPair("Edad", getVal('pacienteEdad')),
-                            createPair("Sala/Cama", getVal('salaCama')),
-                            createPair("Fecha Actual", formatDate(getVal('fechaActual'))),
-                            createPair("Fecha ingreso SU", formatDate(getVal('fechaSU'))),
+                            new Table({
+                                width: { size: 100, type: WidthType.PERCENTAGE },
+                                borders: NO_BORDERS,
+                                rows: [
+                                    idRow("Nombre", nombre),
+                                    idRow("RUT", getVal('pacienteRUT')),
+                                    idRow("Edad", getVal('pacienteEdad')),
+                                    idRow("Sala / Cama", getVal('salaCama')),
+                                    idRow("Servicio de ingreso", getVal('servicioIngreso')),
+                                    idRow("Fecha ingreso SU", formatDate(getVal('fechaSU'))),
+                                    idRow("Fecha ingreso al servicio", formatDate(getVal('fechaServicio'))),
+                                    idRow("Fecha del documento", formatDate(getVal('fechaActual')))
+                                ]
+                            }),
 
                             // Antecedentes
                             createHeader("ANTECEDENTES"),
@@ -1740,15 +1789,17 @@
                             new Paragraph({ text: getVal('pendientes') }),
 
                             // Firmas
-                            new Paragraph({ text: "", spacing: { before: 600 } }),
-                            new Paragraph({ 
-                                children: [
-                                    new TextRun({ text: "__________________________\t\t__________________________" }),
-                                ]
-                            }),
-                            new Paragraph({ 
-                                children: [
-                                    new TextRun({ text: `Int. ${getVal('internoNombre')}\t\t\tDr. ${getVal('medicoNombre')}` }),
+                            createHeader("FIRMAS"),
+                            new Table({
+                                width: { size: 100, type: WidthType.PERCENTAGE },
+                                borders: NO_BORDERS,
+                                rows: [
+                                    new TableRow({
+                                        children: [
+                                            sigCell(getVal('internoNombre'), 'Interno(a) de Medicina', getVal('internoUniversidad'), ''),
+                                            sigCell(getVal('medicoNombre'), `Médico${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}`, getVal('medicoHospital'), '')
+                                        ]
+                                    })
                                 ]
                             })
                         ]
