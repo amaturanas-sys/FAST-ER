@@ -1523,6 +1523,46 @@
                 <div class="help-text">Sugerencia: usa esta sección como índice de consulta. Para una patología específica, ve a la fuente oficial y revisa la edición y las recomendaciones vigentes.</div>
             </div>
 
+            <!-- EGRESO Y ALTA (sólo Epicrisis) -->
+            <div class="section" id="seccionEgreso">
+                <h2>Egreso y Alta</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="egresoFecha">Fecha de alta</label>
+                        <input type="date" id="egresoFecha">
+                    </div>
+                    <div class="form-group">
+                        <label for="egresoDias">Días de hospitalización</label>
+                        <input type="text" id="egresoDias" readonly placeholder="Se calcula con fecha de ingreso SU y de alta">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="egresoReceta">Indicaciones y receta al alta</label>
+                    <textarea id="egresoReceta" placeholder="Medicamentos al alta (nombre - dosis - frecuencia - duración), indicaciones generales, signos de alarma..."></textarea>
+                    <div class="suggestion-box">
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Continuar tratamiento habitual.')">Continuar habitual</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Completar antibiótico hasta el [fecha].')">Completar ATB</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Reposo relativo según tolerancia.')">Reposo relativo</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Consultar en urgencias ante signos de alarma (fiebre, disnea, dolor torácico, compromiso de conciencia).')">Signos de alarma</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Curaciones según indicación.')">Curaciones</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="egresoControles">Próximos controles / seguimiento</label>
+                    <textarea id="egresoControles" placeholder="Especialidad - fecha/plazo - lugar; exámenes de control pendientes..."></textarea>
+                    <div class="suggestion-box">
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Control con médico de cabecera / APS en 7-10 días.')">APS 7-10 días</div>
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Control con especialidad en [plazo].')">Especialidad</div>
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Exámenes de control previo a la cita.')">Exámenes control</div>
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Retiro de puntos en [plazo].')">Retiro de puntos</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="egresoPronostico">Pronóstico / observaciones al alta</label>
+                    <textarea id="egresoPronostico" placeholder="Estado y condición al alta, pronóstico, recomendaciones, derivaciones..."></textarea>
+                </div>
+            </div>
+
             <!-- FIRMAS -->
             <div class="section">
                 <h2>Firmas</h2>
@@ -1577,7 +1617,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.7.1 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.8 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1590,7 +1630,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.7.1 alpha // 08-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.8 alpha // 08-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -1715,6 +1755,12 @@
 
             // Tipo de documento → ajusta secciones visibles según el tipo
             document.getElementById('tipoDocumento').addEventListener('change', aplicarVisibilidadPorTipo);
+
+            // Días de hospitalización (Epicrisis)
+            ['fechaSU', 'egresoFecha'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', calcularDiasHosp);
+            });
 
             // Set fecha actual
             const today = new Date().toISOString().split('T')[0];
@@ -1900,13 +1946,14 @@
             'Estudios Funcionales/Ventilatorios': 'funcionales',
             'Indicaciones': 'indicaciones',
             'Planes y Problemas': 'planes',
+            'Egreso y Alta': 'egreso',
             'Referencias y Guías Clínicas': 'referencias',
             'Firmas': 'firmas'
         };
         const TIPO_CONFIG = {
             'Ingreso':    ['encabezado','datos','antecedentes','gineco','diagnosticos','historia','condiciones','examen','laboratorio','imagenes','microbiologia','procedimientos','electro','funcionales','indicaciones','planes','referencias','firmas'],
             'Evolución':  ['encabezado','datos','diagnosticos','condiciones','examen','laboratorio','imagenes','indicaciones','planes','referencias','firmas'],
-            'Epicrisis':  ['encabezado','datos','diagnosticos','antecedentes','gineco','historia','procedimientos','laboratorio','imagenes','condiciones','indicaciones','planes','referencias','firmas']
+            'Epicrisis':  ['encabezado','datos','diagnosticos','antecedentes','gineco','historia','procedimientos','laboratorio','imagenes','condiciones','egreso','referencias','firmas']
         };
 
         // Renombrado de títulos de sección según el tipo (clave de sección → título).
@@ -1917,11 +1964,23 @@
             'Epicrisis': {
                 diagnosticos: 'Diagnósticos de Egreso',
                 historia: 'Resumen de la Hospitalización',
-                condiciones: 'Condición al Alta',
-                indicaciones: 'Indicaciones al Alta',
-                planes: 'Plan, Controles y Pendientes'
+                condiciones: 'Condición al Alta'
             }
         };
+
+        // Días de hospitalización (fecha ingreso SU → fecha de alta).
+        function calcularDiasHosp() {
+            const ing = (document.getElementById('fechaSU') || {}).value;
+            const alta = (document.getElementById('egresoFecha') || {}).value;
+            const out = document.getElementById('egresoDias');
+            if (!out) return;
+            if (ing && alta) {
+                const d = Math.round((new Date(alta + 'T00:00:00') - new Date(ing + 'T00:00:00')) / 86400000);
+                out.value = (d >= 0 ? d : 0) + ' días';
+            } else {
+                out.value = '';
+            }
+        }
 
         // Reordena, muestra/oculta y renombra las secciones según el tipo de documento.
         function aplicarVisibilidadPorTipo() {
@@ -2579,6 +2638,15 @@
                             : [new Paragraph({ text: 'Sin fármacos registrados' })]),
                         createHeader(tipoDoc === 'Epicrisis' ? "CONTROLES Y SEGUIMIENTO" : "PENDIENTES"),
                         new Paragraph({ text: getVal('pendientes') })
+                    ] : []),
+
+                    ...(incluir('egreso') ? [
+                        createHeader("EGRESO Y ALTA"),
+                        createPair("Fecha de alta", formatDate(getVal('egresoFecha'))),
+                        ...(getVal('egresoDias') ? [createPair("Días de hospitalización", getVal('egresoDias'))] : []),
+                        createPair("Indicaciones y receta al alta", getVal('egresoReceta')),
+                        createPair("Próximos controles / seguimiento", getVal('egresoControles')),
+                        ...(getVal('egresoPronostico') ? [createPair("Pronóstico / observaciones", getVal('egresoPronostico'))] : [])
                     ] : []),
 
                     // Firmas (siempre)
