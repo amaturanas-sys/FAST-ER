@@ -333,6 +333,21 @@
                         <label for="pacienteRUT">RUT (00.000.000-0) <span class="required">*</span></label>
                         <input type="text" id="pacienteRUT" placeholder="Ej: 15.234.567-8" pattern="\d{2}\.\d{3}\.\d{3}-[0-9K]" required>
                     </div>
+
+                    <div class="form-group">
+                        <label>Sexo</label>
+                        <div class="radio-group" style="margin-top: 8px;">
+                            <div class="radio-item">
+                                <input type="radio" id="sexoM" name="sexo" value="Masculino">
+                                <label for="sexoM">Masculino</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="sexoF" name="sexo" value="Femenino">
+                                <label for="sexoF">Femenino</label>
+                            </div>
+                        </div>
+                        <div class="help-text">Selecciona "Femenino" para habilitar la sección gineco-obstétrica.</div>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -501,6 +516,111 @@
                 <div class="form-group">
                     <label for="hospitalizacionesRecientes">Hospitalizaciones Recientes (Hospital - Fecha - Motivo)</label>
                     <textarea id="hospitalizacionesRecientes" placeholder="Ej: Hospital San Juan de Dios - 15/06/25 - Infección urinaria&#10;Clínica Las Condes - 10/04/25 - Neumonía"></textarea>
+                </div>
+            </div>
+
+            <!-- ANTECEDENTES GINECO-OBSTÉTRICOS -->
+            <div class="section hidden" id="seccionGO">
+                <h2>Antecedentes Gineco-Obstétricos</h2>
+
+                <div class="sub-section">
+                    <h3>Fórmula Obstétrica</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="goGestas">Gestaciones (G)</label>
+                            <input type="number" id="goGestas" min="0" max="30" placeholder="Ej: 3">
+                        </div>
+                        <div class="form-group">
+                            <label for="goPartos">Partos (P)</label>
+                            <input type="number" id="goPartos" min="0" max="30" placeholder="Ej: 2">
+                        </div>
+                        <div class="form-group">
+                            <label for="goCesareas">Cesáreas (C)</label>
+                            <input type="number" id="goCesareas" min="0" max="30" placeholder="Ej: 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="goAbortos">Abortos (A)</label>
+                            <input type="number" id="goAbortos" min="0" max="30" placeholder="Ej: 0">
+                        </div>
+                    </div>
+                    <div class="help-text">Se resume como fórmula GPA/GPCA en el documento.</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goMenarquia">Menarquia (edad)</label>
+                        <input type="text" id="goMenarquia" placeholder="Ej: 12 años">
+                    </div>
+                    <div class="form-group">
+                        <label for="goFUR">FUR (Fecha última regla)</label>
+                        <input type="date" id="goFUR">
+                    </div>
+                    <div class="form-group">
+                        <label for="goCiclos">Ciclos menstruales</label>
+                        <input type="text" id="goCiclos" placeholder="Ej: regulares 28/4, eumenorrea">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado menstrual</label>
+                        <div class="radio-group" style="margin-top: 8px;">
+                            <div class="radio-item">
+                                <input type="radio" id="goEstadoFertil" name="goEstado" value="Edad fértil">
+                                <label for="goEstadoFertil">Edad fértil</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="goEstadoEmb" name="goEstado" value="Embarazada">
+                                <label for="goEstadoEmb">Embarazada</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="goEstadoMenop" name="goEstado" value="Menopausia">
+                                <label for="goEstadoMenop">Menopausia</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goMAC">Método anticonceptivo (MAC)</label>
+                        <input type="text" id="goMAC" placeholder="Ej: ACO, DIU, implante, ninguno">
+                    </div>
+                </div>
+
+                <div id="goEmbarazoDiv" class="sub-section hidden">
+                    <h3>Embarazo Actual</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="goEG">Edad gestacional (EG)</label>
+                            <input type="text" id="goEG" placeholder="Ej: 32+4 semanas">
+                        </div>
+                        <div class="form-group">
+                            <label for="goFPP">Fecha probable de parto (FPP)</label>
+                            <input type="date" id="goFPP">
+                        </div>
+                        <div class="form-group">
+                            <label for="goControlPrenatal">Control prenatal</label>
+                            <input type="text" id="goControlPrenatal" placeholder="Ej: 5 controles, ARO/bajo riesgo">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="goEmbarazoObs">Observaciones del embarazo</label>
+                        <textarea id="goEmbarazoObs" placeholder="Ej: SHE, diabetes gestacional, RCIU, presentación, MMF percibidos, dinámica uterina..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goPAP">PAP (último)</label>
+                        <input type="text" id="goPAP" placeholder="Ej: 03/2025 normal">
+                    </div>
+                    <div class="form-group">
+                        <label for="goMamografia">Mamografía (última)</label>
+                        <input type="text" id="goMamografia" placeholder="Ej: 2024 BIRADS 2">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goAntecedentes">Otros antecedentes gineco-obstétricos</label>
+                    <textarea id="goAntecedentes" placeholder="Ej: SOP, endometriosis, miomatosis, cirugías ginecológicas, ITS, terapia hormonal..."></textarea>
                 </div>
             </div>
 
@@ -1230,6 +1350,18 @@
                 });
             });
 
+            // Sexo → muestra/oculta la sección gineco-obstétrica
+            document.querySelectorAll('input[name="sexo"]').forEach(radio => {
+                radio.addEventListener('change', actualizarVisibilidadGO);
+            });
+            // Estado menstrual → muestra/oculta el subbloque de embarazo
+            document.querySelectorAll('input[name="goEstado"]').forEach(radio => {
+                radio.addEventListener('change', actualizarVisibilidadGO);
+            });
+
+            // Tipo de documento → ajusta secciones visibles según el tipo
+            document.getElementById('tipoDocumento').addEventListener('change', aplicarVisibilidadPorTipo);
+
             // Set fecha actual
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('fechaActual').value = today;
@@ -1370,6 +1502,23 @@
         function clearSavedState() {
             try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
         }
+
+        // Muestra la sección gineco-obstétrica si Sexo = Femenino,
+        // y el subbloque de Embarazo si el estado menstrual es "Embarazada".
+        function actualizarVisibilidadGO() {
+            const sexo = document.querySelector('input[name="sexo"]:checked');
+            const esFemenino = !!sexo && sexo.value === 'Femenino';
+            const seccion = document.getElementById('seccionGO');
+            if (seccion) seccion.classList.toggle('hidden', !esFemenino);
+            const estado = document.querySelector('input[name="goEstado"]:checked');
+            const emb = esFemenino && !!estado && estado.value === 'Embarazada';
+            const embDiv = document.getElementById('goEmbarazoDiv');
+            if (embDiv) embDiv.classList.toggle('hidden', !emb);
+        }
+
+        // Ajusta qué secciones se muestran según el tipo de documento.
+        // (Se amplía en las mejoras de interfaz.)
+        function aplicarVisibilidadPorTipo() {}
 
         // Pequeño aviso visual de "Guardado"
         function showAutosaveBadge() {
@@ -1703,6 +1852,34 @@
                     spacing: { after: 120 }
                 });
 
+                // Bloque gineco-obstétrico para el documento (sólo si Sexo = Femenino)
+                const esFemenino = getRadio('sexo') === 'Femenino';
+                const goParrafos = [];
+                if (esFemenino) {
+                    const g = getVal('goGestas'), p = getVal('goPartos'), c = getVal('goCesareas'), a = getVal('goAbortos');
+                    const formula = (g || p || c || a) ? `G${g || 0} P${p || 0} C${c || 0} A${a || 0}` : '';
+                    const goEstado = getRadio('goEstado');
+                    goParrafos.push(createHeader("ANTECEDENTES GINECO-OBSTÉTRICOS"));
+                    if (formula) goParrafos.push(createPair("Fórmula obstétrica", formula));
+                    if (goEstado && goEstado !== 'No') goParrafos.push(createPair("Estado", goEstado));
+                    if (getVal('goMenarquia')) goParrafos.push(createPair("Menarquia", getVal('goMenarquia')));
+                    if (getVal('goFUR')) goParrafos.push(createPair("FUR", formatDate(getVal('goFUR'))));
+                    if (getVal('goCiclos')) goParrafos.push(createPair("Ciclos", getVal('goCiclos')));
+                    if (getVal('goMAC')) goParrafos.push(createPair("MAC", getVal('goMAC')));
+                    if (goEstado === 'Embarazada') {
+                        const emb = [
+                            getVal('goEG') ? 'EG ' + getVal('goEG') : '',
+                            getVal('goFPP') ? 'FPP ' + formatDate(getVal('goFPP')) : '',
+                            getVal('goControlPrenatal') ? 'Control: ' + getVal('goControlPrenatal') : ''
+                        ].filter(Boolean).join(' · ');
+                        if (emb) goParrafos.push(createPair("Embarazo actual", emb));
+                        if (getVal('goEmbarazoObs')) goParrafos.push(createPair("Observaciones embarazo", getVal('goEmbarazoObs')));
+                    }
+                    if (getVal('goPAP')) goParrafos.push(createPair("PAP", getVal('goPAP')));
+                    if (getVal('goMamografia')) goParrafos.push(createPair("Mamografía", getVal('goMamografia')));
+                    if (getVal('goAntecedentes')) goParrafos.push(createPair("Otros antecedentes GO", getVal('goAntecedentes')));
+                }
+
                 const { AlignmentType } = docx;
                 const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
                 const NO_BORDERS = {
@@ -1780,7 +1957,10 @@
                             createPair("Ocupación", getVal('ocupacion')),
                             createPair("Red de Apoyo", getVal('redApoyo')),
                             createPair("Hospitalizaciones recientes", getVal('hospitalizacionesRecientes')),
-                            
+
+                            // Antecedentes gineco-obstétricos (si aplica)
+                            ...goParrafos,
+
                             // Diagnosticos
                             createHeader("DIAGNÓSTICOS DE TRABAJO"),
                             new Paragraph({ text: getVal('diagnosticos') }),
