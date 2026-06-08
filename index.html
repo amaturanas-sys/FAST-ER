@@ -1230,7 +1230,102 @@
             // Set fecha actual
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('fechaActual').value = today;
+
+            // Autoguardado: restaurar la última ficha y empezar a guardar cambios
+            restoreState();
+            const form = document.getElementById('fichaForm');
+            form.addEventListener('input', saveState);
+            form.addEventListener('change', saveState);
         });
+
+        // ====================== AUTOGUARDADO (localStorage) ======================
+        // Conserva la ficha en el propio dispositivo para que no se pierda al
+        // cerrar la pestaña. No sale del equipo: se guarda local y offline.
+        const STORAGE_KEY = 'faster_ficha_v1';
+        let _saveTimer = null;
+
+        function collectState() {
+            const state = { fields: {}, radios: {}, checks: {}, farmacos: farmacosData };
+            document.querySelectorAll('#fichaForm input, #fichaForm select, #fichaForm textarea').forEach(elm => {
+                if (elm.type === 'radio') {
+                    if (elm.checked && elm.name) state.radios[elm.name] = elm.value;
+                } else if (elm.type === 'checkbox') {
+                    if (elm.id) state.checks[elm.id] = elm.checked;
+                } else if (elm.id) {
+                    state.fields[elm.id] = elm.value;
+                }
+            });
+            return state;
+        }
+
+        function saveStateNow() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(collectState()));
+                showAutosaveBadge();
+            } catch (e) {
+                console.warn('No se pudo autoguardar:', e);
+            }
+        }
+
+        // Guardado con "debounce" para no escribir en cada tecla
+        function saveState() {
+            clearTimeout(_saveTimer);
+            _saveTimer = setTimeout(saveStateNow, 400);
+        }
+
+        function restoreState() {
+            let raw;
+            try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
+            if (!raw) return;
+            let state;
+            try { state = JSON.parse(raw); } catch (e) { return; }
+
+            if (Array.isArray(state.farmacos)) {
+                farmacosData = state.farmacos;
+                renderFarmacos();
+            }
+            Object.entries(state.fields || {}).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            });
+            Object.entries(state.checks || {}).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.checked = val;
+            });
+            Object.entries(state.radios || {}).forEach(([name, val]) => {
+                document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                    r.checked = (r.value === val);
+                });
+            });
+
+            // Re-disparar los cambios para que los campos condicionales reaparezcan
+            ['tabaco', 'drogas', 'aislamiento', 'o2Soporte', 'monitoreo', 'historiaMode'].forEach(name => {
+                const checked = document.querySelector(`input[name="${name}"]:checked`);
+                if (checked) checked.dispatchEvent(new Event('change'));
+            });
+            if (document.getElementById('tipoO2').value) updateO2Fields();
+        }
+
+        function clearSavedState() {
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        }
+
+        // Pequeño aviso visual de "Guardado"
+        function showAutosaveBadge() {
+            let badge = document.getElementById('autosaveBadge');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.id = 'autosaveBadge';
+                badge.textContent = '✓ Guardado';
+                badge.style.cssText = 'position:fixed;bottom:16px;right:16px;background:#28a745;color:#fff;' +
+                    'padding:8px 14px;border-radius:20px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.2);' +
+                    'opacity:0;transition:opacity .3s;z-index:1100;pointer-events:none;';
+                document.body.appendChild(badge);
+            }
+            badge.style.opacity = '1';
+            clearTimeout(badge._hideTimer);
+            badge._hideTimer = setTimeout(() => { badge.style.opacity = '0'; }, 1200);
+        }
 
         // Función para agregar sugerencias de antecedentes
         function addToField(fieldId, text) {
@@ -1255,6 +1350,7 @@
             };
             farmacosData.push(farmacosItem);
             renderFarmacos();
+            saveState();
         }
 
         function renderFarmacos() {
@@ -1288,6 +1384,7 @@
         function removeFarmaco(index) {
             farmacosData.splice(index, 1);
             renderFarmacos();
+            saveState();
         }
 
         // Función para limpiar formulario
@@ -1298,6 +1395,7 @@
                 document.getElementById('farmacosList').innerHTML = '';
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('fechaActual').value = today;
+                clearSavedState();
             }
         }
 
