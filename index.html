@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor Fichas Clinicas FAST-ER</title>
-    <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <!-- PWA: instalable y 100% offline -->
+    <meta name="theme-color" content="#208096">
+    <meta name="description" content="Herramienta offline para la redacción y generación de fichas clínicas (ingreso, evolución, epicrisis).">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="FAST-E.R.">
+
+    <!-- Librerías locales (sin internet): generación de .docx y descarga de archivos -->
+    <script src="vendor/docx.umd.js"></script>
+    <script src="vendor/FileSaver.min.js"></script>
     <style>
         :root {
             --color-primary: #208096;
@@ -262,7 +274,7 @@
     <div class="container">
         <header>
             <div class="image">
-                <img src="https://uploads.onecompiler.io/44apj6cqd/44apj3mac/files.jpg" alt="Logo" onerror="this.style.display='none'">
+                <img src="icons/icon-192.png" alt="Logo FAST-E.R." style="width:96px;height:96px;" onerror="this.style.display='none'">
             </div>
             <h1>FAST-E.R.</h1>
             <p>Sistema de gestión de fichas clínicas con generación veloz de documentos</p>
@@ -1088,7 +1100,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.2</strong><br>
+                <strong>Versión ALPHA 0.3 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1101,7 +1113,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.2 alpha // 22-01-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.3 alpha // 08-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -1109,7 +1121,6 @@
         </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.min.js"></script>
     <script>
         // Variables globales
         let farmacosData = [];
@@ -1124,7 +1135,7 @@
             const fio2Manual = document.getElementById('fio2Manual');
 
             // Mostrar/ocultar campos según dispositivo
-            if (tipoO2 === 'FiO2 ambiental') {
+            if (tipoO2 === 'FiO2ambiental') {
                 flujoDiv.classList.add('hidden');
                 fio2CalculadaDiv.classList.add('hidden');
                 fio2ManualDiv.classList.add('hidden');
@@ -1481,6 +1492,40 @@
                                     `\nIngreso Unidad: ${getVal('historiaIngreso')}. \nLab Ingreso: ${getVal('historiaLab')}`;
                 }
 
+                // Recopilar valores de las Indicaciones (checkboxes, radios y campos calculados)
+                const getCheckboxes = (ids) => Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                    .filter(cb => ids.includes(cb.id))
+                    .map(cb => cb.value)
+                    .join(', ');
+
+                // Soporte ventilatorio: sólo se describe si el paciente lo requiere
+                let soporteVent = 'No requiere';
+                if (getRadio('o2Soporte') === 'Sí') {
+                    const fio2Calc = document.getElementById('fio2Calculada').textContent;
+                    const fio2 = (fio2Calc && fio2Calc !== '-- %')
+                        ? fio2Calc
+                        : (getVal('fio2Manual') ? getVal('fio2Manual') + ' %' : '');
+                    soporteVent = [
+                        getVal('tipoO2'),
+                        getVal('flujoValue') ? getVal('flujoValue') + ' L/min' : '',
+                        fio2 ? 'FiO2 ' + fio2 : ''
+                    ].filter(Boolean).join(', ') || 'Sí';
+                }
+
+                const monitoreo = getRadio('monitoreo');
+                const tipoMonit = getVal('tipoMonit');
+                const signVitales = getVal('signVitalesFreqNum')
+                    ? `(control cada ${getVal('signVitalesFreqNum')} ${getVal('signVitalesFreqUnidad')})`
+                    : '';
+                const contencion = getRadio('contencion');
+                const dmae = getCheckboxes(['maeCaidas', 'maeUPP', 'maeBarandas', 'maeProtecciones']) || 'Sin especificar';
+                const hgtIc = getVal('hgtIc') || 'No';
+                const diuresis = getRadio('diuresis');
+                const ktr = getRadio('ktr');
+                const ktm = getRadio('ktm');
+                const invasivos = getCheckboxes(['invVVP', 'invCVC', 'invLinea', 'invNRC', 'invCNAF', 'invVMNI', 'invVMI', 'invSNG', 'invCUP', 'invDrenajes', 'invHemodialisis', 'invPeritoneoDialisis']) || 'Sin dispositivos invasivos';
+                const centinelas = getVal('centinelas') || 'Sin centinelas';
+
                 // Crear Documento
                 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle } = docx;
 
@@ -1539,7 +1584,7 @@
                             // Examen Físico
                             createHeader("CONDICIONES ACTUALES"),
                             new Paragraph({ text: getVal('condicionesActuales') }),
-                            new Paragraph({ text: "Examen Físico:", bold: true, spacing: { before: 200 } }),
+                            new Paragraph({ children: [ new TextRun({ text: "Examen Físico:", bold: true }) ], spacing: { before: 200 } }),
                             new Paragraph({ text: getVal('examenFisico') }),
 
                             // Paraclinicos
@@ -1557,22 +1602,22 @@
                             createHeader("INDICACIONES"),
                             createPair("Reposo", document.getElementById('reposo').value),
                             createPair("Régimen", document.getElementById('regimen').value),
-                            createPair("Soporte ventilatorio", `${getVal('tipoO2')} ${getVal('flujoValue')}Litros/minuto, ${getVal('fio2Calculada')}`),
-                            createPair("Monitorización", `${(monitoreo)} ${(tipoMonit)} ${(signVitales)}`),
-                            createPair("Contenciones", `${contencion}`),
-                            createPair("Medidas de cuidado", `${dmae}`),
-                            createPair("Insulina y control HGT", `${hgtIc}`),
-                            createPair("Cuantificación de diuresis", `${diuresis}`),
-                            createPair("Terapia kinésica respiratoria", `${ktr}`),
-                            createPair("Terapia kinésica motora", `${ktm}`),
-                            
+                            createPair("Soporte ventilatorio", soporteVent),
+                            createPair("Monitorización", `${monitoreo} ${tipoMonit} ${signVitales}`.trim()),
+                            createPair("Contenciones", contencion),
+                            createPair("Medidas de cuidado (MAE/UPP)", dmae),
+                            createPair("Insulina y control HGT", hgtIc),
+                            createPair("Cuantificación de diuresis", diuresis),
+                            createPair("Terapia kinésica respiratoria (KTR)", ktr),
+                            createPair("Terapia kinésica motora (KTM)", ktm),
+
                             // Dispositivos invasivos
                             createHeader("DISPOSITIVOS INVASIVOS"),
-                            createPair(`${invasivos}`),
-                            
+                            new Paragraph({ text: invasivos }),
+
                             // CENTINELAS
                             createHeader("CENTINELAS"),
-                            createPair(`${centinelas}`),
+                            new Paragraph({ text: centinelas }),
                             
                             // Planes
                             createHeader("PLANES"),
@@ -1585,7 +1630,12 @@
 
                             // Farmacos Activos
                             createHeader("FÁRMACOS ACTUALES"),
-                            farmacosData.map(f => new Paragraph({ text: `• ${farmacos.nombre} - ${farmacos.presentacion} - ${farmacos.dosis} - ${farmacos.frecuencia} - ${farmacos.via} - ${farmacos.duracion}`, bullet: { level: 0 } })),
+                            ...(farmacosData.length
+                                ? farmacosData.map(f => new Paragraph({
+                                    text: `${f.nombre} - ${f.presentacion} - ${f.dosis} - ${f.frecuencia} - ${f.via} - ${f.duracion}`,
+                                    bullet: { level: 0 }
+                                  }))
+                                : [new Paragraph({ text: 'Sin fármacos registrados' })]),
 
                             // Pendientes
                             createHeader("PENDIENTES"),
@@ -1619,6 +1669,14 @@
                 document.getElementById('loading').style.display = 'none';
                 alert('Error al generar: ' + error.message);
             }
+        }
+
+        // Registro del Service Worker: habilita el uso 100% offline tras la primera carga.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .catch(err => console.warn('No se pudo registrar el Service Worker:', err));
+            });
         }
     </script>
 </body>
