@@ -1085,7 +1085,10 @@
 
             <!-- BOTONES DE ACCIÓN -->
             <div class="buttons-section">
-                <button type="button" class="btn-secondary" onclick="limpiarFormulario()">Limpiar Formulario</button>
+                <button type="button" class="btn-secondary" onclick="limpiarFormulario()">🧹 Limpiar</button>
+                <button type="button" class="btn-secondary" onclick="exportFicha()" title="Guardar la ficha como archivo para reutilizarla luego (Evolución / Epicrisis)">⬆️ Exportar (.json)</button>
+                <button type="button" class="btn-secondary" onclick="document.getElementById('importFichaInput').click()" title="Cargar una ficha previamente exportada">⬇️ Importar (.json)</button>
+                <input type="file" id="importFichaInput" accept="application/json,.json" style="display:none" onchange="importFichaFile(this)">
                 <button type="button" class="btn-primary" onclick="generarDocumento()">
                     📥 Descargar Ficha (.docx)
                 </button>
@@ -1273,12 +1276,8 @@
             _saveTimer = setTimeout(saveStateNow, 400);
         }
 
-        function restoreState() {
-            let raw;
-            try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
-            if (!raw) return;
-            let state;
-            try { state = JSON.parse(raw); } catch (e) { return; }
+        function applyState(state) {
+            if (!state || typeof state !== 'object') return;
 
             if (Array.isArray(state.farmacos)) {
                 farmacosData = state.farmacos;
@@ -1299,11 +1298,73 @@
             });
 
             // Re-disparar los cambios para que los campos condicionales reaparezcan
-            ['tabaco', 'drogas', 'aislamiento', 'o2Soporte', 'monitoreo', 'historiaMode'].forEach(name => {
+            ['tabaco', 'drogas', 'aislamiento', 'o2Soporte', 'monitoreo', 'historiaMode', 'sexo'].forEach(name => {
                 const checked = document.querySelector(`input[name="${name}"]:checked`);
                 if (checked) checked.dispatchEvent(new Event('change'));
             });
-            if (document.getElementById('tipoO2').value) updateO2Fields();
+            if (document.getElementById('tipoO2') && document.getElementById('tipoO2').value) updateO2Fields();
+            if (typeof actualizarVisibilidadGO === 'function') actualizarVisibilidadGO();
+            if (typeof aplicarVisibilidadPorTipo === 'function') aplicarVisibilidadPorTipo();
+        }
+
+        function restoreState() {
+            let raw;
+            try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
+            if (!raw) return;
+            let state;
+            try { state = JSON.parse(raw); } catch (e) { return; }
+            applyState(state);
+        }
+
+        // ============ EXPORTAR / IMPORTAR FICHA (formato JSON estándar) ============
+        // Permite guardar una ficha como archivo y reutilizarla después para crear
+        // una Evolución o una Epicrisis a partir de datos previos.
+        const FICHA_FORMAT = 'FAST-ER-ficha';
+        const FICHA_VERSION = 1;
+
+        function exportFicha() {
+            const payload = {
+                format: FICHA_FORMAT,
+                version: FICHA_VERSION,
+                exportedAt: new Date().toISOString(),
+                data: collectState()
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const nombre = (document.getElementById('pacienteNombre').value || 'ficha').trim().replace(/\s+/g, '_') || 'ficha';
+            const rut = (document.getElementById('pacienteRUT').value || '').replace(/[.\-\s]/g, '');
+            const fecha = document.getElementById('fechaActual').value || new Date().toISOString().split('T')[0];
+            saveAs(blob, `FASTER_${nombre}${rut ? '_' + rut : ''}_${fecha}.json`);
+        }
+
+        function importFichaFile(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    // Acepta el envoltorio estándar {format, data} o un estado crudo
+                    const data = (parsed && parsed.data && parsed.data.fields) ? parsed.data : parsed;
+                    if (!data || typeof data !== 'object' || !data.fields) {
+                        alert('El archivo no parece una ficha FAST-ER válida (falta el campo "fields").');
+                        return;
+                    }
+                    if (!confirm('Importar reemplazará los datos actuales del formulario con los de la ficha seleccionada. ¿Continuar?')) {
+                        return;
+                    }
+                    document.getElementById('fichaForm').reset();
+                    farmacosData = [];
+                    document.getElementById('farmacosList').innerHTML = '';
+                    applyState(data);
+                    saveStateNow();
+                    alert('Ficha importada correctamente.\n\nAhora puede cambiar el "Tipo de Documento" (por ejemplo a Evolución o Epicrisis) y actualizar lo que corresponda antes de descargar.');
+                } catch (err) {
+                    alert('No se pudo leer el archivo: ' + err.message);
+                } finally {
+                    input.value = '';
+                }
+            };
+            reader.readAsText(file);
         }
 
         function clearSavedState() {
