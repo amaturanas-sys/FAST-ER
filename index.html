@@ -997,6 +997,7 @@
                     <label for="laboratorios">Valores de laboratorio por fecha</label>
                     <textarea id="laboratorios" placeholder="00/00/26 - CREA BUN UREMIA ELP 0/0/0 HTO% GR VCM LEUCO NEUT LINF..."></textarea>
                     <div class="help-text">Formato sugerido: Fecha - CREA BUN UREMIA ELP HTO% GR VCM LEUCO NEUT LINF GRAN PCR VHS PO2 PCO2 PH LACTATO BE HCO3 CA GLICEMIA</div>
+                    <div class="help-text">💡 Atajo: escribe la fecha como 6 dígitos al inicio de la línea (ej. <strong>150626</strong>) y se convierte en <strong>15/06/26 -</strong>. Aplica a todos los exámenes y procedimientos.</div>
                 </div>
 
                 <div class="form-group">
@@ -1689,7 +1690,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.10 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.12 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1702,7 +1703,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.10 alpha // 15-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.12 alpha // 15-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -1832,6 +1833,12 @@
             ['fechaSU', 'egresoFecha'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('change', calcularDiasHosp);
+            });
+
+            // Atajo de fecha (DDMMAA → DD/MM/AA -) en campos de exámenes y procedimientos
+            ['laboratorios', 'laboratorioOrina', 'laboratorioFluidos', 'imagenes', 'microbiologia', 'procedimientos', 'electrofisiologia', 'funcionalesSA'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', autoFechaExamen);
             });
 
             // Set fecha actual
@@ -2052,6 +2059,21 @@
             } else {
                 out.value = '';
             }
+        }
+
+        // Atajo de escritura en campos de exámenes/procedimientos:
+        // al escribir 6 dígitos (DDMMAA) al inicio de una línea -> "DD/MM/AA - ".
+        function autoFechaExamen(e) {
+            const ta = e.target;
+            if (ta.selectionStart !== ta.selectionEnd) return;
+            const pos = ta.selectionStart;
+            const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
+            const seg = ta.value.slice(lineStart, pos);
+            const m = seg.match(/^(\d{2})(\d{2})(\d{2})$/);
+            if (!m) return;
+            const dd = +m[1], mm = +m[2];
+            if (dd < 1 || dd > 31 || mm < 1 || mm > 12) return;
+            ta.setRangeText(`${m[1]}/${m[2]}/${m[3]} - `, lineStart, pos, 'end');
         }
 
         // Reordena, muestra/oculta y renombra las secciones según el tipo de documento.
