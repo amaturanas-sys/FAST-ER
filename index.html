@@ -2538,6 +2538,10 @@
                 // Crear Documento (texto simple: encabezados en negrita + espaciado, sin tablas)
                 const { Document, Packer, Paragraph, TextRun, BorderStyle, AlignmentType, HeadingLevel } = docx;
 
+                // Convierte un valor multilínea en TextRuns con saltos de línea reales (w:br)
+                const runsML = (value, extra) => String(value).split('\n').map((p, i) =>
+                    new TextRun(Object.assign({ text: p }, i > 0 ? { break: 1 } : {}, extra || {})));
+
                 // ÍNDICE: texto simple en MAYÚSCULA y negrita (sin estilo de título, sin línea, alineado a la izquierda)
                 const createHeader = (text) => new Paragraph({
                     children: [new TextRun({ text: String(text).toUpperCase(), bold: true })],
@@ -2547,7 +2551,7 @@
                 const createPair = (label, value) => new Paragraph({
                     children: [
                         new TextRun({ text: label + ": ", bold: true }),
-                        new TextRun({ text: String(value) })
+                        ...runsML(value)
                     ],
                     spacing: { after: 80 }
                 });
@@ -2555,7 +2559,7 @@
                 // Helpers que omiten lo vacío: par→[pair]|[]; txt→[parrafo]|[]; seccion→header sólo si hay contenido.
                 const tiene = (v) => v !== undefined && v !== null && String(v).trim() !== '';
                 const par = (label, value) => tiene(value) ? [createPair(label, value)] : [];
-                const txt = (value, opts) => tiene(value) ? [new Paragraph(Object.assign({ text: String(value), spacing: { after: 80 } }, opts || {}))] : [];
+                const txt = (value, opts) => tiene(value) ? [new Paragraph(Object.assign({ children: runsML(value), spacing: { after: 80 } }, opts || {}))] : [];
                 const seccion = (header, items) => items.length ? [createHeader(header), ...items] : [];
 
                 // ===== Helpers de listas (texto plano, aptos para copiar/pegar) =====
