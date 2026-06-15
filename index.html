@@ -2538,11 +2538,10 @@
                 // Crear Documento (texto simple: encabezados en negrita + espaciado, sin tablas)
                 const { Document, Packer, Paragraph, TextRun, BorderStyle, AlignmentType, HeadingLevel } = docx;
 
+                // Encabezado: texto simple en negrita (sin estilo "Título" de Word, sin línea)
                 const createHeader = (text) => new Paragraph({
                     children: [new TextRun({ text: text, bold: true })],
-                    heading: HeadingLevel.HEADING_2,
-                    spacing: { before: 320, after: 120 },
-                    border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } }
+                    spacing: { before: 240, after: 40 }
                 });
 
                 const createPair = (label, value) => new Paragraph({
@@ -2653,7 +2652,7 @@
                 ];
 
                 const docChildren = [
-                    new Paragraph({ children: [new TextRun({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, bold: true })], heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
+                    new Paragraph({ children: [new TextRun({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, bold: true })], alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
                     ...txt(`${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, { alignment: AlignmentType.CENTER }),
                     ...txt([getVal('salaCama') ? 'Sala/Cama: ' + getVal('salaCama') : '', getVal('fechaActual') ? 'Fecha: ' + formatDate(getVal('fechaActual')) : ''].filter(Boolean).join('   •   '), { alignment: AlignmentType.CENTER, spacing: { after: 160 } }),
 
@@ -2720,7 +2719,7 @@
 
                 // ===== Epicrisis: estructura tipo servicio de Ginecología (texto plano) =====
                 const epicrisisChildren = [
-                    new Paragraph({ children: [new TextRun({ text: `EPICRISIS${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre').toUpperCase() : ''}`, bold: true })], heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
+                    new Paragraph({ children: [new TextRun({ text: `EPICRISIS${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre').toUpperCase() : ''}`, bold: true })], alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
                     ...txt(getVal('hospitalNombre'), { alignment: AlignmentType.CENTER }),
                     ...txt([nombre, getVal('pacienteRUT')].filter(Boolean).join('   ·   '), { alignment: AlignmentType.CENTER, spacing: { after: 160 } }),
 
