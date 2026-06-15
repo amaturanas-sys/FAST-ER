@@ -1587,29 +1587,51 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="egresoReceta">Indicaciones y receta al alta</label>
-                    <textarea id="egresoReceta" placeholder="Medicamentos al alta (nombre - dosis - frecuencia - duración), indicaciones generales, signos de alarma..."></textarea>
+                    <label for="egresoDiagIngreso">Diagnósticos de ingreso</label>
+                    <textarea id="egresoDiagIngreso" placeholder="Lista de diagnósticos al ingreso (uno por línea, puede incluir antecedentes: 'Atcd: ...')"></textarea>
+                    <div class="help-text">Los <strong>diagnósticos de egreso</strong> se completan en la sección «Diagnósticos» (arriba).</div>
+                </div>
+                <div class="form-group">
+                    <label for="egresoTratamientos">Tratamientos recibidos</label>
+                    <textarea id="egresoTratamientos" placeholder="Fármacos administrados durante la hospitalización (uno por línea)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="egresoComplicaciones">Complicaciones</label>
+                    <textarea id="egresoComplicaciones" placeholder="Complicaciones durante la hospitalización"></textarea>
                     <div class="suggestion-box">
-                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Continuar tratamiento habitual.')">Continuar habitual</div>
-                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Completar antibiótico hasta el [fecha].')">Completar ATB</div>
-                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Reposo relativo según tolerancia.')">Reposo relativo</div>
-                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Consultar en urgencias ante signos de alarma (fiebre, disnea, dolor torácico, compromiso de conciencia).')">Signos de alarma</div>
-                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Curaciones según indicación.')">Curaciones</div>
+                        <div class="suggestion-item" onclick="addToField('egresoComplicaciones', 'Sin complicaciones.')">Sin complicaciones</div>
+                        <div class="suggestion-item" onclick="addToField('egresoComplicaciones', 'Sin complicaciones descritas en protocolo quirúrgico.')">Sin complic. (protocolo qx)</div>
+                        <div class="suggestion-item" onclick="addToField('egresoComplicaciones', 'Ninguna.')">Ninguna</div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="egresoControles">Próximos controles / seguimiento</label>
-                    <textarea id="egresoControles" placeholder="Especialidad - fecha/plazo - lugar; exámenes de control pendientes..."></textarea>
+                    <label for="egresoPronostico">Estado al alta</label>
+                    <textarea id="egresoPronostico" placeholder="Ej: Estable, en buenas condiciones generales."></textarea>
                     <div class="suggestion-box">
-                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Control con médico de cabecera / APS en 7-10 días.')">APS 7-10 días</div>
-                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Control con especialidad en [plazo].')">Especialidad</div>
-                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Exámenes de control previo a la cita.')">Exámenes control</div>
-                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Retiro de puntos en [plazo].')">Retiro de puntos</div>
+                        <div class="suggestion-item" onclick="addToField('egresoPronostico', 'Estable, en buenas condiciones generales.')">Estable, buenas condiciones</div>
+                        <div class="suggestion-item" onclick="addToField('egresoPronostico', 'Estable.')">Estable</div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="egresoPronostico">Pronóstico / observaciones al alta</label>
-                    <textarea id="egresoPronostico" placeholder="Estado y condición al alta, pronóstico, recomendaciones, derivaciones..."></textarea>
+                    <label for="egresoReceta">Indicaciones al alta</label>
+                    <textarea id="egresoReceta" placeholder="Reposo, régimen, medicamentos (nombre - dosis - frecuencia - duración), signos de alarma..."></textarea>
+                    <div class="suggestion-box">
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Reposo relativo.')">Reposo relativo</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Régimen común a tolerancia.')">Régimen común</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Paracetamol 500 mg 2 comprimidos cada 8 horas vía oral por 5 días.')">Paracetamol</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Acudir a urgencias en caso de dolor intenso, flujo de mal olor, fiebre, nuevos síntomas asociados, o en caso de considerarlo necesario.')">Signos de alarma</div>
+                        <div class="suggestion-item" onclick="addToField('egresoReceta', 'Se explican indicaciones a paciente.')">Se explican indicaciones</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="egresoControles">Próximos controles</label>
+                    <textarea id="egresoControles" placeholder="Especialidad - fecha/plazo - lugar; exámenes de control..."></textarea>
+                    <div class="suggestion-box">
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Control CAE GINE en 7-10 días.')">CAE GINE 7-10 días</div>
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Control CAE GINE en 30 días con resultado de biopsia.')">CAE GINE 30 días biopsia</div>
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Control en APS / consultorio en 7-10 días.')">APS 7-10 días</div>
+                        <div class="suggestion-item" onclick="addToField('egresoControles', 'Rescatar resultado de biopsia en 30 días en Anatomía Patológica.')">Rescatar biopsia</div>
+                    </div>
                 </div>
             </div>
 
@@ -1667,7 +1689,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.9 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.10 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1680,7 +1702,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.9 alpha // 15-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.10 alpha // 15-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -2003,7 +2025,7 @@
         const TIPO_CONFIG = {
             'Ingreso':    ['encabezado','datos','antecedentes','gineco','diagnosticos','historia','condiciones','examen','laboratorio','imagenes','microbiologia','procedimientos','electro','funcionales','indicaciones','planes','referencias','firmas'],
             'Evolución':  ['encabezado','datos','diagnosticos','condiciones','examen','laboratorio','imagenes','indicaciones','planes','referencias','firmas'],
-            'Epicrisis':  ['encabezado','datos','diagnosticos','antecedentes','gineco','historia','procedimientos','laboratorio','imagenes','condiciones','egreso','referencias','firmas']
+            'Epicrisis':  ['encabezado','datos','diagnosticos','historia','procedimientos','laboratorio','imagenes','egreso','referencias','firmas']
         };
 
         // Renombrado de títulos de sección según el tipo (clave de sección → título).
@@ -2623,6 +2645,13 @@
                     ...par("Centinelas", centinelas)
                 ];
 
+                // Firmas en texto plano (nombres), apto para copiar/pegar en Florence/Sina
+                const firmasPlain = [
+                    createHeader("FIRMAS"),
+                    ...(tiene(getVal('internoNombre')) ? [new Paragraph({ children: [new TextRun({ text: `Int. ${getVal('internoNombre')}${getVal('internoUniversidad') ? ' — ' + getVal('internoUniversidad') : ''}` })] })] : []),
+                    ...(tiene(getVal('medicoNombre')) ? [new Paragraph({ children: [new TextRun({ text: `Dr(a). ${getVal('medicoNombre')}${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}${getVal('medicoHospital') ? ' — ' + getVal('medicoHospital') : ''}` })] })] : [])
+                ];
+
                 const docChildren = [
                     new Paragraph({ children: [new TextRun({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, bold: true })], heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
                     ...txt(`${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, { alignment: AlignmentType.CENTER }),
@@ -2685,14 +2714,37 @@
                         ...par("Pronóstico / observaciones", getVal('egresoPronostico'))
                     ]) : []),
 
-                    // Firmas (texto simple, sin tabla)
-                    createHeader("FIRMAS"),
-                    new Paragraph({ spacing: { before: 500 }, children: [new TextRun({ text: "_______________________________" })] }),
-                    ...(tiene(getVal('internoNombre')) ? [new Paragraph({ children: [new TextRun({ text: getVal('internoNombre'), bold: true })] })] : []),
-                    new Paragraph({ children: [new TextRun({ text: `Interno(a) de Medicina${getVal('internoUniversidad') ? ' — ' + getVal('internoUniversidad') : ''}` })], spacing: { after: 200 } }),
-                    new Paragraph({ spacing: { before: 300 }, children: [new TextRun({ text: "_______________________________" })] }),
-                    ...(tiene(getVal('medicoNombre')) ? [new Paragraph({ children: [new TextRun({ text: getVal('medicoNombre'), bold: true })] })] : []),
-                    new Paragraph({ children: [new TextRun({ text: `Médico${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}${getVal('medicoHospital') ? ' — ' + getVal('medicoHospital') : ''}` })] })
+                    // Firmas (texto plano)
+                    ...firmasPlain
+                ];
+
+                // ===== Epicrisis: estructura tipo servicio de Ginecología (texto plano) =====
+                const epicrisisChildren = [
+                    new Paragraph({ children: [new TextRun({ text: `EPICRISIS${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre').toUpperCase() : ''}`, bold: true })], heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
+                    ...txt(getVal('hospitalNombre'), { alignment: AlignmentType.CENTER }),
+                    ...txt([nombre, getVal('pacienteRUT')].filter(Boolean).join('   ·   '), { alignment: AlignmentType.CENTER, spacing: { after: 160 } }),
+
+                    ...par("Fecha ingreso", getVal('fechaSU') ? formatDate(getVal('fechaSU')) : ''),
+                    ...par("Fecha egreso", getVal('egresoFecha') ? formatDate(getVal('egresoFecha')) : ''),
+                    ...par("Días hospitalización", getVal('egresoDias')),
+
+                    ...seccion("DIAGNÓSTICOS DE INGRESO", txt(getVal('egresoDiagIngreso'))),
+                    ...seccion("DIAGNÓSTICOS DE EGRESO", txt(getVal('diagnosticos'))),
+                    ...seccion("HISTORIA CLÍNICA", txt(historiaTexto)),
+                    ...seccion("PROCEDIMIENTOS REALIZADOS", txt(getVal('procedimientos'))),
+                    ...seccion("TRATAMIENTOS RECIBIDOS", txt(getVal('egresoTratamientos'))),
+                    ...seccion("EXÁMENES REALIZADOS Y/O PENDIENTES", [
+                        ...par("Laboratorio", getVal('laboratorios')),
+                        ...par("Orina", getVal('laboratorioOrina')),
+                        ...par("Fluidos", getVal('laboratorioFluidos')),
+                        ...par("Imágenes", getVal('imagenes'))
+                    ]),
+                    ...seccion("COMPLICACIONES", txt(getVal('egresoComplicaciones'))),
+                    ...seccion("ESTADO AL ALTA", txt(getVal('egresoPronostico') || getVal('condicionesActuales'))),
+                    ...seccion("INDICACIONES AL ALTA", txt(getVal('egresoReceta'))),
+                    ...seccion("PRÓXIMOS CONTROLES", txt(getVal('egresoControles'))),
+
+                    ...firmasPlain
                 ];
 
                 const doc = new Document({
@@ -2700,7 +2752,7 @@
                         properties: {
                             page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } }
                         },
-                        children: docChildren
+                        children: (tipoDoc === 'Epicrisis') ? epicrisisChildren : docChildren
                     }]
                 });
 
