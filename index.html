@@ -2538,9 +2538,9 @@
                 // Crear Documento (texto simple: encabezados en negrita + espaciado, sin tablas)
                 const { Document, Packer, Paragraph, TextRun, BorderStyle, AlignmentType, HeadingLevel } = docx;
 
-                // Encabezado: texto simple en negrita (sin estilo "Título" de Word, sin línea)
+                // ÍNDICE: texto simple en MAYÚSCULA y negrita (sin estilo de título, sin línea, alineado a la izquierda)
                 const createHeader = (text) => new Paragraph({
-                    children: [new TextRun({ text: text, bold: true })],
+                    children: [new TextRun({ text: String(text).toUpperCase(), bold: true })],
                     spacing: { before: 240, after: 40 }
                 });
 
@@ -2679,9 +2679,9 @@
                 ];
 
                 const docChildren = [
-                    new Paragraph({ children: [new TextRun({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, bold: true })], alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
-                    ...txt(`${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, { alignment: AlignmentType.CENTER }),
-                    ...txt([getVal('salaCama') ? 'Sala/Cama: ' + getVal('salaCama') : '', getVal('fechaActual') ? 'Fecha: ' + formatDate(getVal('fechaActual')) : ''].filter(Boolean).join('   •   '), { alignment: AlignmentType.CENTER, spacing: { after: 160 } }),
+                    new Paragraph({ children: [new TextRun({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, bold: true })], spacing: { after: 60 } }),
+                    ...txt(`${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`),
+                    ...txt([getVal('salaCama') ? 'Sala/Cama: ' + getVal('salaCama') : '', getVal('fechaActual') ? 'Fecha: ' + formatDate(getVal('fechaActual')) : ''].filter(Boolean).join('   ·   '), { spacing: { after: 160 } }),
 
                     // Datos del paciente
                     ...seccion("DATOS DEL PACIENTE", [
@@ -2746,9 +2746,9 @@
 
                 // ===== Epicrisis: estructura tipo servicio de Ginecología (texto plano) =====
                 const epicrisisChildren = [
-                    new Paragraph({ children: [new TextRun({ text: `EPICRISIS${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre').toUpperCase() : ''}`, bold: true })], alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
-                    ...txt(getVal('hospitalNombre'), { alignment: AlignmentType.CENTER }),
-                    ...txt([nombre, getVal('pacienteRUT')].filter(Boolean).join('   ·   '), { alignment: AlignmentType.CENTER, spacing: { after: 160 } }),
+                    new Paragraph({ children: [new TextRun({ text: `EPICRISIS${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre').toUpperCase() : ''}`, bold: true })], spacing: { after: 60 } }),
+                    ...txt(getVal('hospitalNombre')),
+                    ...txt([nombre, getVal('pacienteRUT')].filter(Boolean).join('   ·   '), { spacing: { after: 160 } }),
 
                     ...par("Fecha ingreso", getVal('fechaSU') ? formatDate(getVal('fechaSU')) : ''),
                     ...par("Fecha egreso", getVal('egresoFecha') ? formatDate(getVal('egresoFecha')) : ''),
