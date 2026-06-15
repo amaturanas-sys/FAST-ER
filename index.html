@@ -1356,7 +1356,18 @@
                 <h2>Planes y Problemas</h2>
 
                 <div class="sub-section">
-                    <h3>Problemas Sistémicos</h3>
+                    <h3>Planes por Sistemas</h3>
+                    <div class="help-text" style="margin-bottom:10px;">Completa solo los sistemas que apliquen. Los que dejes vacíos no aparecerán en el documento.</div>
+
+                    <div class="form-group">
+                        <label for="planNeurologico">Neurológico</label>
+                        <textarea id="planNeurologico" placeholder="Ej: Vigil, orientado, sin focalidad; manejo de delirium; analgesia/sedación..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planCardiovascular">Cardiovascular</label>
+                        <textarea id="planCardiovascular" placeholder="Ej: Ritmo sinusal, sin dolor torácico; manejo de IC/arritmia; anticoagulación..."></textarea>
+                    </div>
 
                     <div class="form-group">
                         <label for="planHemodinamia">Hemodinamia</label>
@@ -1382,18 +1393,38 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="planCirugia">Cirugía</label>
-                        <textarea id="planCirugia" placeholder="Ej: Se realiza X sin intercurrencias, pendiente control con especialidad..."></textarea>
+                        <label for="planDigestivo">Digestivo / Gastrointestinal</label>
+                        <textarea id="planDigestivo" placeholder="Ej: Tolera vía oral, tránsito conservado; manejo de HDA/náuseas; función hepática..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planRenal">Renal / Nefrourológico</label>
+                        <textarea id="planRenal" placeholder="Ej: AKI sobre ERC, Creatinina actual vs basal, sin trastornos electrolíticos..."></textarea>
                         <div class="suggestion-box">
-                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Sin indicación quirúrgica actual.')">Sin indicación</div>
-                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Evaluado por cirugía, manejo conservador, control evolutivo.')">Conservador</div>
-                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Pendiente resolución quirúrgica, en preparación preoperatoria.')">Preop</div>
-                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Postoperatorio sin intercurrencias, manejo de herida y analgesia.')">Postop</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Función renal conservada, sin trastornos electrolíticos ni ácido-base.')">Conservada</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Injuria renal aguda (KDIGO), se optimiza volemia y se evitan nefrotóxicos.')">AKI KDIGO</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'ERC en seguimiento, ajuste de fármacos según función renal.')">ERC</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Balance hídrico estricto, control de diuresis.')">Balance hídrico</div>
+                            <div class="suggestion-item" onclick="addToField('planRenal', 'Evaluación por nefrología, valorar necesidad de terapia de reemplazo renal.')">Nefro/TRR</div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="planInfectologia">Infectología</label>
+                        <label for="planTEL">Hidroelectrolítico y ácido-base</label>
+                        <textarea id="planTEL" placeholder="Ej: Corrección de hipokalemia; acidosis metabólica en resolución; control de ELP..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planMetabolico">Metabólico / Endocrino</label>
+                        <textarea id="planMetabolico" placeholder="Ej: Paciente con glicemias en rango 100-150, requiere insulina..."></textarea>
+                        <div class="suggestion-box">
+                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Glicemias en rango, control con HGT, esquema de insulina basal-bolo según necesidad.')">Glicemias/HGT</div>
+                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Manejo de función tiroidea / endocrino según corresponda.')">Endocrino</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planInfectologia">Infectológico</label>
                         <textarea id="planInfectologia" placeholder="Ej: Paciente cursando cuadro de X con PPII a la baja..."></textarea>
                         <div class="suggestion-box">
                             <div class="suggestion-item" onclick="addToField('planInfectologia', 'Cursando cuadro infeccioso con parámetros inflamatorios a la baja, buena respuesta a antibioticoterapia.')">PCR a la baja</div>
@@ -1405,26 +1436,39 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="planMetabolico">Metabólico</label>
-                        <textarea id="planMetabolico" placeholder="Ej: Paciente con glicemias en rango 100-150, requiere insulina..."></textarea>
+                        <label for="planHematologico">Hematológico</label>
+                        <textarea id="planHematologico" placeholder="Ej: Anemia en estudio; tromboprofilaxis; manejo de anticoagulación/transfusión..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planNutricional">Nutricional</label>
+                        <textarea id="planNutricional" placeholder="Ej: Régimen según tolerancia; evaluación por nutrición; soporte enteral/parenteral..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planPiel">Piel, heridas y UPP</label>
+                        <textarea id="planPiel" placeholder="Ej: Prevención de UPP; curaciones; estado de heridas/ostomías..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planCirugia">Cirugía</label>
+                        <textarea id="planCirugia" placeholder="Ej: Se realiza X sin intercurrencias, pendiente control con especialidad..."></textarea>
                         <div class="suggestion-box">
-                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Glicemias en rango, control con HGT, esquema de insulina basal-bolo según necesidad.')">Glicemias/HGT</div>
-                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Corrección de trastorno hidroelectrolítico, control seriado de ELP.')">Corrección TEL</div>
-                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Soporte nutricional según requerimientos, evaluación por nutrición.')">Nutrición</div>
-                            <div class="suggestion-item" onclick="addToField('planMetabolico', 'Manejo de función tiroidea / endocrino según corresponda.')">Endocrino</div>
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Sin indicación quirúrgica actual.')">Sin indicación</div>
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Evaluado por cirugía, manejo conservador, control evolutivo.')">Conservador</div>
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Pendiente resolución quirúrgica, en preparación preoperatoria.')">Preop</div>
+                            <div class="suggestion-item" onclick="addToField('planCirugia', 'Postoperatorio sin intercurrencias, manejo de herida y analgesia.')">Postop</div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="planRenal">Renal</label>
-                        <textarea id="planRenal" placeholder="Ej: AKI sobre ERC, Creatinina actual vs basal, sin trastornos electrolíticos..."></textarea>
-                        <div class="suggestion-box">
-                            <div class="suggestion-item" onclick="addToField('planRenal', 'Función renal conservada, sin trastornos electrolíticos ni ácido-base.')">Conservada</div>
-                            <div class="suggestion-item" onclick="addToField('planRenal', 'Injuria renal aguda (KDIGO), se optimiza volemia y se evitan nefrotóxicos.')">AKI KDIGO</div>
-                            <div class="suggestion-item" onclick="addToField('planRenal', 'ERC en seguimiento, ajuste de fármacos según función renal.')">ERC</div>
-                            <div class="suggestion-item" onclick="addToField('planRenal', 'Balance hídrico estricto, control de diuresis.')">Balance hídrico</div>
-                            <div class="suggestion-item" onclick="addToField('planRenal', 'Evaluación por nefrología, valorar necesidad de terapia de reemplazo renal.')">Nefro/TRR</div>
-                        </div>
+                        <label for="planSaludMental">Salud mental</label>
+                        <textarea id="planSaludMental" placeholder="Ej: Ánimo y conducta; manejo de ansiedad/insomnio; evaluación por psiquiatría..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="planDolor">Dolor y cuidados paliativos</label>
+                        <textarea id="planDolor" placeholder="Ej: Manejo analgésico escalonado; objetivos de confort; cuidados paliativos..."></textarea>
                     </div>
                 </div>
 
@@ -1623,7 +1667,7 @@
         <!-- DECLARACIÓN DE AUTORÍA -->
         <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--color-border); text-align: center; font-size: 11px; color: #999; line-height: 1.8;">
             <p style="margin: 0;">
-                <strong>Versión ALPHA 0.8 — Offline / PWA</strong><br>
+                <strong>Versión ALPHA 0.9 — Offline / PWA</strong><br>
                 Iniciativa desarrollada por Alberto Maturana Steinbrügge en Enero 2026<br>
                 Herramienta realizada utilizando Perplexity Plus, Base44 y htmleditor (Gitlab) en Windows 11<br>
                 <br>
@@ -1636,7 +1680,7 @@
                 MINSAL Chile. <em>Programa Nacional de Inmunizaciones</em>. Disponible en: https://www.chileatiende.gob.cl/fichas/105622<br>
                 <br>
                 <strong>EN CASO DE PROBLEMAS CON EL SISTEMA</strong><br>
-                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.8 alpha // 08-06-2026<br>
+                1- Asegúrese de estar usando la versión más reciente del sistema.   --- Versión actual: 0.9 alpha // 15-06-2026<br>
                 2- Reinicie el programa e intente nuevamente.<br>
                 3- Verifique que su equipo puede abrir archivos .docx.<br>
                 4- Si todo falla, diríjase a https://dontpad.com/FAST-ER.problemas<br>
@@ -2403,7 +2447,7 @@
                 const getVal = (id) => document.getElementById(id)?.value || '';
                 const getRadio = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || 'No';
 
-                // Construir historia
+                // Construir historia (omitiendo las partes sin completar)
                 let historiaTexto = "";
                 const modoHistoriaEl = document.querySelector('input[name="historiaMode"]:checked');
                 const modoHistoria = modoHistoriaEl
@@ -2412,10 +2456,17 @@
                 if (modoHistoria === 'libre') {
                     historiaTexto = getVal('historiaLibre');
                 } else {
-                    historiaTexto = `Historia referida por ${getVal('historiaFuente')}. Acude desde ${getVal('historiaAcudeDe')}. ` +
-                                    `Motivo: ${getVal('historiaMotivo')} de ${getVal('historiaEvolucion')} de evolución. ` +
-                                    `Atención SU (${formatDate(getVal('historiaSUDia'))}): ${getVal('historiaSUTto')}. ` +
-                                    `\nIngreso Unidad: ${getVal('historiaIngreso')}. \nLab Ingreso: ${getVal('historiaLab')}`;
+                    const hp = [];
+                    if (getVal('historiaFuente')) hp.push(`Historia referida por ${getVal('historiaFuente')}.`);
+                    if (getVal('historiaAcudeDe')) hp.push(`Acude desde ${getVal('historiaAcudeDe')}.`);
+                    if (getVal('historiaMotivo')) hp.push(`Motivo: ${getVal('historiaMotivo')}${getVal('historiaEvolucion') ? ' de ' + getVal('historiaEvolucion') + ' de evolución' : ''}.`);
+                    if (getVal('historiaSUDia') || getVal('historiaSUTto')) hp.push(`Atención SU${getVal('historiaSUDia') ? ' (' + formatDate(getVal('historiaSUDia')) + ')' : ''}${getVal('historiaSUTto') ? ': ' + getVal('historiaSUTto') : ''}.`);
+                    if (getVal('historiaPosterior')) hp.push(`${getVal('historiaPosterior')}.`);
+                    if (getVal('historiaIngreso')) hp.push(`Ingreso a la unidad: ${getVal('historiaIngreso')}.`);
+                    if (getVal('historiaLab')) hp.push(`Laboratorio de ingreso: ${getVal('historiaLab')}.`);
+                    if (getVal('historiaDescartados')) hp.push(`Se descarta ${getVal('historiaDescartados')}${getVal('historiaMotivoDes') ? ' (' + getVal('historiaMotivoDes') + ')' : ''}.`);
+                    if (getVal('historiaEspecialidad')) hp.push(`Evaluado por ${getVal('historiaEspecialidad')}${getVal('historiaEspTto') ? ' quienes indican ' + getVal('historiaEspTto') : ''}.`);
+                    historiaTexto = hp.join(' ');
                 }
 
                 // Recopilar valores de las Indicaciones (checkboxes, radios y campos calculados)
@@ -2444,98 +2495,79 @@
                     ? `(control cada ${getVal('signVitalesFreqNum')} ${getVal('signVitalesFreqUnidad')})`
                     : '';
                 const contencion = getRadio('contencion');
-                const dmae = getCheckboxes(['maeCaidas', 'maeUPP', 'maeBarandas', 'maeProtecciones']) || 'Sin especificar';
-                const hgtIc = getVal('hgtIc') || 'No';
+                const dmae = getCheckboxes(['maeCaidas', 'maeUPP', 'maeBarandas', 'maeProtecciones']);
+                const hgtIc = getVal('hgtIc');
                 const diuresis = getRadio('diuresis');
                 const ktr = getRadio('ktr');
                 const ktm = getRadio('ktm');
-                const invasivos = getCheckboxes(['invVVP', 'invCVC', 'invLinea', 'invNRC', 'invCNAF', 'invVMNI', 'invVMI', 'invSNG', 'invCUP', 'invDrenajes', 'invHemodialisis', 'invPeritoneoDialisis']) || 'Sin dispositivos invasivos';
-                const centinelas = getVal('centinelas') || 'Sin centinelas';
+                const invasivos = getCheckboxes(['invVVP', 'invCVC', 'invLinea', 'invNRC', 'invCNAF', 'invVMNI', 'invVMI', 'invSNG', 'invCUP', 'invDrenajes', 'invHemodialisis', 'invPeritoneoDialisis']);
+                const centinelas = getVal('centinelas');
 
-                // Crear Documento
-                const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle } = docx;
+                // Hábitos: sólo los efectivamente contestados
+                const habitosArr = [];
+                const _tab = document.querySelector('input[name="tabaco"]:checked');
+                if (_tab) habitosArr.push(`Tabaco: ${_tab.value}${_tab.value !== 'No' && getVal('ipaValue') ? ' (IPA ' + getVal('ipaValue') + ')' : ''}`);
+                const _alc = document.querySelector('input[name="alcohol"]:checked');
+                if (_alc) habitosArr.push(`Alcohol: ${_alc.value}`);
+                const _dro = document.querySelector('input[name="drogas"]:checked');
+                if (_dro) habitosArr.push(`Drogas: ${_dro.value}${_dro.value !== 'No' && getVal('drogasNombreValue') ? ' (' + getVal('drogasNombreValue') + ')' : ''}`);
+                const habitos = habitosArr.join(' | ');
+
+                // Crear Documento (texto simple: encabezados en negrita + espaciado, sin tablas)
+                const { Document, Packer, Paragraph, TextRun, BorderStyle, AlignmentType, HeadingLevel } = docx;
 
                 const createHeader = (text) => new Paragraph({
-                    text: text,
-                    heading: docx.HeadingLevel.HEADING_2,
-                    spacing: { before: 400, after: 200 },
+                    children: [new TextRun({ text: text, bold: true })],
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 320, after: 120 },
                     border: { bottom: { color: "auto", space: 1, style: BorderStyle.SINGLE, size: 6 } }
                 });
 
                 const createPair = (label, value) => new Paragraph({
                     children: [
                         new TextRun({ text: label + ": ", bold: true }),
-                        new TextRun({ text: value })
+                        new TextRun({ text: String(value) })
                     ],
-                    spacing: { after: 120 }
+                    spacing: { after: 80 }
                 });
 
-                // Bloque gineco-obstétrico para el documento (sólo si Sexo = Femenino)
+                // Helpers que omiten lo vacío: par→[pair]|[]; txt→[parrafo]|[]; seccion→header sólo si hay contenido.
+                const tiene = (v) => v !== undefined && v !== null && String(v).trim() !== '';
+                const par = (label, value) => tiene(value) ? [createPair(label, value)] : [];
+                const txt = (value, opts) => tiene(value) ? [new Paragraph(Object.assign({ text: String(value), spacing: { after: 80 } }, opts || {}))] : [];
+                const seccion = (header, items) => items.length ? [createHeader(header), ...items] : [];
+
+                // Bloque gineco-obstétrico (sólo si Sexo = Femenino), omitiendo vacíos
                 const esFemenino = getRadio('sexo') === 'Femenino';
-                const goParrafos = [];
+                let goParrafos = [];
                 if (esFemenino) {
                     const g = getVal('goGestas'), p = getVal('goPartos'), c = getVal('goCesareas'), a = getVal('goAbortos');
                     const formula = (g || p || c || a) ? `G${g || 0} P${p || 0} C${c || 0} A${a || 0}` : '';
                     const goEstado = getRadio('goEstado');
-                    goParrafos.push(createHeader("ANTECEDENTES GINECO-OBSTÉTRICOS"));
-                    if (formula) goParrafos.push(createPair("Fórmula obstétrica", formula));
-                    if (goEstado && goEstado !== 'No') goParrafos.push(createPair("Estado", goEstado));
-                    if (getVal('goMenarquia')) goParrafos.push(createPair("Menarquia", getVal('goMenarquia')));
-                    if (getVal('goFUR')) goParrafos.push(createPair("FUR", formatDate(getVal('goFUR'))));
-                    if (getVal('goCiclos')) goParrafos.push(createPair("Ciclos", getVal('goCiclos')));
-                    if (getVal('goMAC')) goParrafos.push(createPair("MAC", getVal('goMAC')));
+                    let embTxt = '';
                     if (goEstado === 'Embarazada') {
-                        const emb = [
+                        embTxt = [
                             getVal('goEG') ? 'EG ' + getVal('goEG') : '',
                             getVal('goFPP') ? 'FPP ' + formatDate(getVal('goFPP')) : '',
                             getVal('goControlPrenatal') ? 'Control: ' + getVal('goControlPrenatal') : ''
                         ].filter(Boolean).join(' · ');
-                        if (emb) goParrafos.push(createPair("Embarazo actual", emb));
-                        if (getVal('goEmbarazoObs')) goParrafos.push(createPair("Observaciones embarazo", getVal('goEmbarazoObs')));
                     }
-                    if (getVal('goPAP')) goParrafos.push(createPair("PAP", getVal('goPAP')));
-                    if (getVal('goMamografia')) goParrafos.push(createPair("Mamografía", getVal('goMamografia')));
-                    if (getVal('goAntecedentes')) goParrafos.push(createPair("Otros antecedentes GO", getVal('goAntecedentes')));
+                    const goItems = [
+                        ...par("Fórmula obstétrica", formula),
+                        ...par("Estado", (goEstado && goEstado !== 'No') ? goEstado : ''),
+                        ...par("Menarquia", getVal('goMenarquia')),
+                        ...par("FUR", getVal('goFUR') ? formatDate(getVal('goFUR')) : ''),
+                        ...par("Ciclos", getVal('goCiclos')),
+                        ...par("MAC", getVal('goMAC')),
+                        ...par("Embarazo actual", embTxt),
+                        ...(goEstado === 'Embarazada' ? par("Observaciones embarazo", getVal('goEmbarazoObs')) : []),
+                        ...par("PAP", getVal('goPAP')),
+                        ...par("Mamografía", getVal('goMamografia')),
+                        ...par("Otros antecedentes GO", getVal('goAntecedentes'))
+                    ];
+                    goParrafos = seccion("ANTECEDENTES GINECO-OBSTÉTRICOS", goItems);
                 }
 
-                const { AlignmentType } = docx;
-                const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
-                const NO_BORDERS = {
-                    top: noBorder, bottom: noBorder, left: noBorder, right: noBorder,
-                    insideHorizontal: noBorder, insideVertical: noBorder
-                };
-                const lightLine = { style: BorderStyle.SINGLE, size: 2, color: "DDDDDD" };
-
-                // Fila etiqueta/valor para la tabla de identificación del paciente
-                const idRow = (label, value) => new TableRow({
-                    children: [
-                        new TableCell({
-                            width: { size: 32, type: WidthType.PERCENTAGE },
-                            borders: { top: noBorder, left: noBorder, right: noBorder, bottom: lightLine },
-                            children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20 })] })]
-                        }),
-                        new TableCell({
-                            width: { size: 68, type: WidthType.PERCENTAGE },
-                            borders: { top: noBorder, left: noBorder, right: noBorder, bottom: lightLine },
-                            children: [new Paragraph({ children: [new TextRun({ text: value || '—', size: 20 })] })]
-                        })
-                    ]
-                });
-
-                // Celda de firma (línea + nombre + rol + institución)
-                const sigCell = (name, role, org, hosp) => new TableCell({
-                    width: { size: 50, type: WidthType.PERCENTAGE },
-                    borders: NO_BORDERS,
-                    children: [
-                        new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 500 }, children: [new TextRun({ text: "_______________________________" })] }),
-                        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: name || '', bold: true })] }),
-                        new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: role, size: 18 })] }),
-                        ...(org ? [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: org, size: 18 })] })] : []),
-                        ...(hosp ? [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: hosp, size: 18 })] })] : [])
-                    ]
-                });
-
-                // Construcción de secciones
                 // El documento incluye sólo las secciones del tipo elegido, con sus títulos.
                 const tipoDoc = getVal('tipoDocumento');
                 const ordenDoc = TIPO_CONFIG[tipoDoc];
@@ -2543,135 +2575,124 @@
                 const tit = (key, def) => (TIPO_TITULOS[tipoDoc] && TIPO_TITULOS[tipoDoc][key])
                     ? TIPO_TITULOS[tipoDoc][key].toUpperCase() : def;
 
+                // Paraclínicos (omitiendo vacíos)
                 const paraclinicos = [];
-                if (incluir('laboratorio')) {
-                    paraclinicos.push(createPair("Laboratorio", getVal('laboratorios')));
-                    paraclinicos.push(createPair("Laboratorio orina", getVal('laboratorioOrina')));
-                    paraclinicos.push(createPair("Laboratorio fluidos", getVal('laboratorioFluidos')));
-                }
-                if (incluir('imagenes')) paraclinicos.push(createPair("Imágenes", getVal('imagenes')));
-                if (incluir('microbiologia')) paraclinicos.push(createPair("Microbiología", getVal('microbiologia')));
-                if (incluir('procedimientos')) paraclinicos.push(createPair("Procedimientos", getVal('procedimientos')));
-                if (incluir('electro')) paraclinicos.push(createPair("Electrofisiológicos", getVal('electrofisiologia')));
-                if (incluir('funcionales')) paraclinicos.push(createPair("Estudios funcionales", getVal('funcionalesSA')));
+                if (incluir('laboratorio')) paraclinicos.push(...par("Laboratorio", getVal('laboratorios')), ...par("Orina", getVal('laboratorioOrina')), ...par("Fluidos", getVal('laboratorioFluidos')));
+                if (incluir('imagenes')) paraclinicos.push(...par("Imágenes", getVal('imagenes')));
+                if (incluir('microbiologia')) paraclinicos.push(...par("Microbiología", getVal('microbiologia')));
+                if (incluir('procedimientos')) paraclinicos.push(...par("Procedimientos", getVal('procedimientos')));
+                if (incluir('electro')) paraclinicos.push(...par("Electrofisiológicos", getVal('electrofisiologia')));
+                if (incluir('funcionales')) paraclinicos.push(...par("Estudios funcionales", getVal('funcionalesSA')));
+
+                // Planes por sistemas (completo, omitiendo vacíos)
+                const sistemas = [
+                    ['planNeurologico', 'Neurológico'],
+                    ['planCardiovascular', 'Cardiovascular'],
+                    ['planHemodinamia', 'Hemodinamia'],
+                    ['planRespiratorio', 'Respiratorio'],
+                    ['planDigestivo', 'Digestivo / Gastrointestinal'],
+                    ['planRenal', 'Renal / Nefrourológico'],
+                    ['planTEL', 'Hidroelectrolítico y ácido-base'],
+                    ['planMetabolico', 'Metabólico / Endocrino'],
+                    ['planInfectologia', 'Infectológico'],
+                    ['planHematologico', 'Hematológico'],
+                    ['planNutricional', 'Nutricional'],
+                    ['planPiel', 'Piel, heridas y UPP'],
+                    ['planCirugia', 'Cirugía'],
+                    ['planSaludMental', 'Salud mental'],
+                    ['planDolor', 'Dolor y cuidados paliativos']
+                ];
+                const planesItems = sistemas.flatMap(([id, lbl]) => par(lbl, getVal(id)));
+                const farmacosItems = farmacosData
+                    .filter(f => f.nombre || f.presentacion || f.dosis || f.frecuencia || f.via || f.duracion)
+                    .map(f => new Paragraph({ text: [f.nombre, f.presentacion, f.dosis, f.frecuencia, f.via, f.duracion].filter(Boolean).join(' - '), bullet: { level: 0 } }));
+
+                // Indicaciones (sólo lo indicado / contestado)
+                const indicacionesItems = [
+                    ...par("Reposo", getVal('reposo')),
+                    ...par("Régimen", getVal('regimen')),
+                    ...(getRadio('o2Soporte') === 'Sí' ? par("Soporte ventilatorio", soporteVent) : []),
+                    ...(monitoreo === 'Sí' ? par("Monitorización", `Sí ${tipoMonit} ${signVitales}`.trim()) : []),
+                    ...(contencion && contencion !== 'Nunca' ? par("Contención física", contencion) : []),
+                    ...par("Medidas de cuidado (MAE/UPP)", dmae),
+                    ...par("Insulina y control HGT", hgtIc),
+                    ...(diuresis === 'Sí' ? par("Cuantificación de diuresis", 'Sí') : []),
+                    ...(ktr === 'Sí' ? par("Terapia kinésica respiratoria (KTR)", 'Sí') : []),
+                    ...(ktm === 'Sí' ? par("Terapia kinésica motora (KTM)", 'Sí') : []),
+                    ...par("Dispositivos invasivos", invasivos),
+                    ...par("Centinelas", centinelas)
+                ];
 
                 const docChildren = [
-                    new Paragraph({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, heading: docx.HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
-                    new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: `${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, size: 22, color: "555555" })] }),
-                    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [new TextRun({ text: `Sala/Cama: ${getVal('salaCama') || '—'}   •   Fecha: ${formatDate(getVal('fechaActual')) || '—'}`, size: 18, color: "777777" })] }),
+                    new Paragraph({ children: [new TextRun({ text: `${(tipoDoc || 'FICHA').toUpperCase()} — MEDICINA`, bold: true })], heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER, spacing: { after: 60 } }),
+                    ...txt(`${getVal('hospitalNombre')}${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre') : ''}`, { alignment: AlignmentType.CENTER }),
+                    ...txt([getVal('salaCama') ? 'Sala/Cama: ' + getVal('salaCama') : '', getVal('fechaActual') ? 'Fecha: ' + formatDate(getVal('fechaActual')) : ''].filter(Boolean).join('   •   '), { alignment: AlignmentType.CENTER, spacing: { after: 160 } }),
 
-                    // Datos Paciente (siempre)
-                    createHeader("DATOS DEL PACIENTE"),
-                    new Table({
-                        width: { size: 100, type: WidthType.PERCENTAGE },
-                        borders: NO_BORDERS,
-                        rows: [
-                            idRow("Nombre", nombre),
-                            idRow("RUT", getVal('pacienteRUT')),
-                            idRow("Edad", getVal('pacienteEdad')),
-                            idRow("Sala / Cama", getVal('salaCama')),
-                            idRow("Servicio de ingreso", getVal('servicioIngreso')),
-                            idRow("Fecha ingreso SU", formatDate(getVal('fechaSU'))),
-                            idRow("Fecha ingreso al servicio", formatDate(getVal('fechaServicio'))),
-                            idRow("Fecha del documento", formatDate(getVal('fechaActual')))
-                        ]
-                    }),
+                    // Datos del paciente
+                    ...seccion("DATOS DEL PACIENTE", [
+                        ...par("Nombre", nombre),
+                        ...par("RUT", getVal('pacienteRUT')),
+                        ...par("Edad", getVal('pacienteEdad')),
+                        ...par("Sexo", getRadio('sexo') !== 'No' ? getRadio('sexo') : ''),
+                        ...par("Sala / Cama", getVal('salaCama')),
+                        ...par("Servicio de ingreso", getVal('servicioIngreso')),
+                        ...par("Fecha ingreso SU", getVal('fechaSU') ? formatDate(getVal('fechaSU')) : ''),
+                        ...par("Fecha ingreso al servicio", getVal('fechaServicio') ? formatDate(getVal('fechaServicio')) : ''),
+                        ...par("Fecha del documento", getVal('fechaActual') ? formatDate(getVal('fechaActual')) : '')
+                    ]),
 
-                    ...(incluir('antecedentes') ? [
-                        createHeader("ANTECEDENTES"),
-                        createPair("Mórbidos", getVal('antecedentesMoviles')),
-                        createPair("Quirúrgicos", getVal('antecedentesQuirurgicos')),
-                        createPair("Fármacos de uso crónico", getVal('farmacos')),
-                        createPair("Alergias", getVal('alergias')),
-                        createPair("Reacciones Adversas", getVal('ram')),
-                        createPair("Hábitos", `Tabaco: ${getRadio('tabaco')} IPA: ${getVal('ipaValue')} | Alcohol: ${getRadio('alcohol')} | Drogas: ${getRadio('drogas')} ${getVal('drogasNombreValue')}`),
-                        createPair("Inmunizaciones", getVal('inmunizaciones')),
-                        createPair("Ocupación", getVal('ocupacion')),
-                        createPair("Red de Apoyo", getVal('redApoyo')),
-                        createPair("Hospitalizaciones recientes", getVal('hospitalizacionesRecientes'))
-                    ] : []),
+                    ...(incluir('antecedentes') ? seccion("ANTECEDENTES", [
+                        ...par("Mórbidos", getVal('antecedentesMoviles')),
+                        ...par("Quirúrgicos", getVal('antecedentesQuirurgicos')),
+                        ...par("Fármacos de uso crónico", getVal('farmacos')),
+                        ...par("Alergias", getVal('alergias')),
+                        ...par("Reacciones adversas (RAM)", getVal('ram')),
+                        ...par("Hábitos", habitos),
+                        ...par("Inmunizaciones", getVal('inmunizaciones')),
+                        ...par("Ocupación", getVal('ocupacion')),
+                        ...par("Red de apoyo", getVal('redApoyo')),
+                        ...par("Hospitalizaciones recientes", getVal('hospitalizacionesRecientes'))
+                    ]) : []),
 
                     ...(incluir('gineco') ? goParrafos : []),
 
-                    ...(incluir('diagnosticos') ? [
-                        createHeader(tit('diagnosticos', "DIAGNÓSTICOS DE TRABAJO")),
-                        new Paragraph({ text: getVal('diagnosticos') })
-                    ] : []),
+                    ...(incluir('diagnosticos') ? seccion(tit('diagnosticos', "DIAGNÓSTICOS DE TRABAJO"), txt(getVal('diagnosticos'))) : []),
 
-                    ...(incluir('historia') ? [
-                        createHeader(tit('historia', "HISTORIA CLÍNICA")),
-                        new Paragraph({ text: historiaTexto })
-                    ] : []),
+                    ...(incluir('historia') ? seccion(tit('historia', "HISTORIA CLÍNICA"), txt(historiaTexto)) : []),
 
-                    ...((incluir('condiciones') || incluir('examen')) ? [createHeader(tit('condiciones', "CONDICIONES ACTUALES"))] : []),
-                    ...(incluir('condiciones') ? [new Paragraph({ text: getVal('condicionesActuales') })] : []),
-                    ...(incluir('examen') ? [
-                        new Paragraph({ children: [new TextRun({ text: "Examen Físico:", bold: true })], spacing: { before: 200 } }),
-                        new Paragraph({ text: getVal('examenFisico') })
-                    ] : []),
+                    ...((incluir('condiciones') || incluir('examen')) ? seccion(tit('condiciones', "CONDICIONES ACTUALES"), [
+                        ...(incluir('condiciones') ? txt(getVal('condicionesActuales')) : []),
+                        ...(incluir('examen') && tiene(getVal('examenFisico'))
+                            ? [new Paragraph({ children: [new TextRun({ text: "Examen físico:", bold: true })], spacing: { before: 120, after: 40 } }), ...txt(getVal('examenFisico'))]
+                            : [])
+                    ]) : []),
 
-                    ...(paraclinicos.length ? [createHeader("LABORATORIO E IMÁGENES"), ...paraclinicos] : []),
+                    ...(paraclinicos.length ? seccion("LABORATORIO E IMÁGENES", paraclinicos) : []),
 
-                    ...(incluir('indicaciones') ? [
-                        createHeader(tit('indicaciones', "INDICACIONES")),
-                        createPair("Reposo", document.getElementById('reposo').value),
-                        createPair("Régimen", document.getElementById('regimen').value),
-                        createPair("Soporte ventilatorio", soporteVent),
-                        createPair("Monitorización", `${monitoreo} ${tipoMonit} ${signVitales}`.trim()),
-                        createPair("Contenciones", contencion),
-                        createPair("Medidas de cuidado (MAE/UPP)", dmae),
-                        createPair("Insulina y control HGT", hgtIc),
-                        createPair("Cuantificación de diuresis", diuresis),
-                        createPair("Terapia kinésica respiratoria (KTR)", ktr),
-                        createPair("Terapia kinésica motora (KTM)", ktm),
-                        createHeader("DISPOSITIVOS INVASIVOS"),
-                        new Paragraph({ text: invasivos }),
-                        createHeader("CENTINELAS"),
-                        new Paragraph({ text: centinelas })
-                    ] : []),
+                    ...(incluir('indicaciones') ? seccion(tit('indicaciones', "INDICACIONES"), indicacionesItems) : []),
 
                     ...(incluir('planes') ? [
-                        createHeader(tipoDoc === 'Epicrisis' ? "PLAN" : "PLANES"),
-                        createPair("Hemodinamia", getVal('planHemodinamia')),
-                        createPair("Respiratorio", getVal('planRespiratorio')),
-                        createPair("Cirugía", getVal('planCirugia')),
-                        createPair("Infectología", getVal('planInfectologia')),
-                        createPair("Metabólico", getVal('planMetabolico')),
-                        createPair("Renal", getVal('planRenal')),
-                        createHeader("FÁRMACOS ACTUALES"),
-                        ...(farmacosData.length
-                            ? farmacosData.map(f => new Paragraph({
-                                text: `${f.nombre} - ${f.presentacion} - ${f.dosis} - ${f.frecuencia} - ${f.via} - ${f.duracion}`,
-                                bullet: { level: 0 }
-                              }))
-                            : [new Paragraph({ text: 'Sin fármacos registrados' })]),
-                        createHeader(tipoDoc === 'Epicrisis' ? "CONTROLES Y SEGUIMIENTO" : "PENDIENTES"),
-                        new Paragraph({ text: getVal('pendientes') })
+                        ...seccion(tipoDoc === 'Epicrisis' ? "PLAN POR SISTEMAS" : "PLANES POR SISTEMAS", planesItems),
+                        ...seccion("FÁRMACOS", farmacosItems),
+                        ...seccion(tipoDoc === 'Epicrisis' ? "CONTROLES Y SEGUIMIENTO" : "PENDIENTES", txt(getVal('pendientes')))
                     ] : []),
 
-                    ...(incluir('egreso') ? [
-                        createHeader("EGRESO Y ALTA"),
-                        createPair("Fecha de alta", formatDate(getVal('egresoFecha'))),
-                        ...(getVal('egresoDias') ? [createPair("Días de hospitalización", getVal('egresoDias'))] : []),
-                        createPair("Indicaciones y receta al alta", getVal('egresoReceta')),
-                        createPair("Próximos controles / seguimiento", getVal('egresoControles')),
-                        ...(getVal('egresoPronostico') ? [createPair("Pronóstico / observaciones", getVal('egresoPronostico'))] : [])
-                    ] : []),
+                    ...(incluir('egreso') ? seccion("EGRESO Y ALTA", [
+                        ...par("Fecha de alta", getVal('egresoFecha') ? formatDate(getVal('egresoFecha')) : ''),
+                        ...par("Días de hospitalización", getVal('egresoDias')),
+                        ...par("Indicaciones y receta al alta", getVal('egresoReceta')),
+                        ...par("Próximos controles / seguimiento", getVal('egresoControles')),
+                        ...par("Pronóstico / observaciones", getVal('egresoPronostico'))
+                    ]) : []),
 
-                    // Firmas (siempre)
+                    // Firmas (texto simple, sin tabla)
                     createHeader("FIRMAS"),
-                    new Table({
-                        width: { size: 100, type: WidthType.PERCENTAGE },
-                        borders: NO_BORDERS,
-                        rows: [
-                            new TableRow({
-                                children: [
-                                    sigCell(getVal('internoNombre'), 'Interno(a) de Medicina', getVal('internoUniversidad'), ''),
-                                    sigCell(getVal('medicoNombre'), `Médico${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}`, getVal('medicoHospital'), '')
-                                ]
-                            })
-                        ]
-                    })
+                    new Paragraph({ spacing: { before: 500 }, children: [new TextRun({ text: "_______________________________" })] }),
+                    ...(tiene(getVal('internoNombre')) ? [new Paragraph({ children: [new TextRun({ text: getVal('internoNombre'), bold: true })] })] : []),
+                    new Paragraph({ children: [new TextRun({ text: `Interno(a) de Medicina${getVal('internoUniversidad') ? ' — ' + getVal('internoUniversidad') : ''}` })], spacing: { after: 200 } }),
+                    new Paragraph({ spacing: { before: 300 }, children: [new TextRun({ text: "_______________________________" })] }),
+                    ...(tiene(getVal('medicoNombre')) ? [new Paragraph({ children: [new TextRun({ text: getVal('medicoNombre'), bold: true })] })] : []),
+                    new Paragraph({ children: [new TextRun({ text: `Médico${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}${getVal('medicoHospital') ? ' — ' + getVal('medicoHospital') : ''}` })] })
                 ];
 
                 const doc = new Document({
