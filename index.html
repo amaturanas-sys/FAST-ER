@@ -2627,10 +2627,10 @@
                 const paraclinicos = [];
                 if (incluir('laboratorio')) paraclinicos.push(...grupo("Laboratorio", listaCronologica(getVal('laboratorios'))), ...grupo("Orina", listaCronologica(getVal('laboratorioOrina'))), ...grupo("Fluidos", listaCronologica(getVal('laboratorioFluidos'))));
                 if (incluir('imagenes')) paraclinicos.push(...grupo("Imágenes", listaCronologica(getVal('imagenes'))));
-                if (incluir('microbiologia')) paraclinicos.push(...grupo("Microbiología", listaVinetas(getVal('microbiologia'))));
+                if (incluir('microbiologia')) paraclinicos.push(...grupo("Microbiología", listaCronologica(getVal('microbiologia'))));
                 if (incluir('procedimientos')) paraclinicos.push(...grupo("Procedimientos", listaCronologica(getVal('procedimientos'))));
-                if (incluir('electro')) paraclinicos.push(...par("Electrofisiológicos", getVal('electrofisiologia')));
-                if (incluir('funcionales')) paraclinicos.push(...par("Estudios funcionales", getVal('funcionalesSA')));
+                if (incluir('electro')) paraclinicos.push(...grupo("Electrofisiológicos", listaCronologica(getVal('electrofisiologia'))));
+                if (incluir('funcionales')) paraclinicos.push(...grupo("Estudios funcionales", listaCronologica(getVal('funcionalesSA'))));
 
                 // Planes por sistemas (completo, omitiendo vacíos)
                 const sistemas = [
@@ -2729,7 +2729,7 @@
                     ...(incluir('planes') ? [
                         ...seccion(tipoDoc === 'Epicrisis' ? "PLAN POR SISTEMAS" : "PLANES POR SISTEMAS", planesItems),
                         ...seccion("FÁRMACOS", farmacosItems),
-                        ...seccion(tipoDoc === 'Epicrisis' ? "CONTROLES Y SEGUIMIENTO" : "PENDIENTES", txt(getVal('pendientes')))
+                        ...seccion(tipoDoc === 'Epicrisis' ? "CONTROLES Y SEGUIMIENTO" : "PENDIENTES", listaVinetas(getVal('pendientes')))
                     ] : []),
 
                     ...(incluir('egreso') ? seccion("EGRESO Y ALTA", [
