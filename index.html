@@ -2405,7 +2405,10 @@
 
                 // Construir historia
                 let historiaTexto = "";
-                const modoHistoria = document.querySelector('input[name="historiaMode"]:checked').value;
+                const modoHistoriaEl = document.querySelector('input[name="historiaMode"]:checked');
+                const modoHistoria = modoHistoriaEl
+                    ? modoHistoriaEl.value
+                    : (getVal('historiaLibre') ? 'libre' : 'plantilla');
                 if (modoHistoria === 'libre') {
                     historiaTexto = getVal('historiaLibre');
                 } else {
