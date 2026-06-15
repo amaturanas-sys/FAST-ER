@@ -2558,6 +2558,33 @@
                 const txt = (value, opts) => tiene(value) ? [new Paragraph(Object.assign({ text: String(value), spacing: { after: 80 } }, opts || {}))] : [];
                 const seccion = (header, items) => items.length ? [createHeader(header), ...items] : [];
 
+                // ===== Helpers de listas (texto plano, aptos para copiar/pegar) =====
+                const lineasDe = (value) => String(value || '').split('\n').map(l => l.trim()).filter(Boolean);
+                const limpiaMarca = (l) => l.replace(/^\s*(?:\d+\s*[.\)\-]|[-•*·])\s*/, '').trim();
+                const itemPar = (texto) => new Paragraph({ text: texto, spacing: { after: 20 } });
+                // Lista numerada (1. 2. 3.)
+                const listaNumerada = (value) => lineasDe(value).map((l, i) => itemPar(`${i + 1}. ${limpiaMarca(l)}`));
+                // Lista con viñeta (-)
+                const listaVinetas = (value) => lineasDe(value).map(l => itemPar(`- ${limpiaMarca(l)}`));
+                // Sub-rótulo en negrita (para Laboratorio / Imágenes, etc.)
+                const subRotulo = (t) => new Paragraph({ children: [new TextRun({ text: t, bold: true })], spacing: { before: 80, after: 20 } });
+                const grupo = (label, paras) => paras.length ? [subRotulo(label), ...paras] : [];
+                // Año por defecto para fechas sin año (toma el del documento)
+                const anioDef = (() => { const y = (getVal('fechaActual') || '').slice(0, 4); return /^\d{4}$/.test(y) ? +y : new Date().getFullYear(); })();
+                const fechaDeLinea = (l) => {
+                    const m = l.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+                    if (!m) return -Infinity;
+                    let d = +m[1], mo = +m[2], y = m[3] ? +m[3] : anioDef;
+                    if (y < 100) y += 2000;
+                    const t = new Date(y, mo - 1, d).getTime();
+                    return isNaN(t) ? -Infinity : t;
+                };
+                // Lista ordenada por fecha (más reciente arriba); líneas sin fecha quedan al final
+                const listaCronologica = (value) => lineasDe(value)
+                    .map((l, idx) => ({ l: limpiaMarca(l), t: fechaDeLinea(l), idx }))
+                    .sort((a, b) => (b.t - a.t) || (a.idx - b.idx))
+                    .map(o => itemPar(`- ${o.l}`));
+
                 // Bloque gineco-obstétrico (sólo si Sexo = Femenino), omitiendo vacíos
                 const esFemenino = getRadio('sexo') === 'Femenino';
                 let goParrafos = [];
@@ -2596,12 +2623,12 @@
                 const tit = (key, def) => (TIPO_TITULOS[tipoDoc] && TIPO_TITULOS[tipoDoc][key])
                     ? TIPO_TITULOS[tipoDoc][key].toUpperCase() : def;
 
-                // Paraclínicos (omitiendo vacíos)
+                // Paraclínicos (listas por fecha, más reciente arriba; omitiendo vacíos)
                 const paraclinicos = [];
-                if (incluir('laboratorio')) paraclinicos.push(...par("Laboratorio", getVal('laboratorios')), ...par("Orina", getVal('laboratorioOrina')), ...par("Fluidos", getVal('laboratorioFluidos')));
-                if (incluir('imagenes')) paraclinicos.push(...par("Imágenes", getVal('imagenes')));
-                if (incluir('microbiologia')) paraclinicos.push(...par("Microbiología", getVal('microbiologia')));
-                if (incluir('procedimientos')) paraclinicos.push(...par("Procedimientos", getVal('procedimientos')));
+                if (incluir('laboratorio')) paraclinicos.push(...grupo("Laboratorio", listaCronologica(getVal('laboratorios'))), ...grupo("Orina", listaCronologica(getVal('laboratorioOrina'))), ...grupo("Fluidos", listaCronologica(getVal('laboratorioFluidos'))));
+                if (incluir('imagenes')) paraclinicos.push(...grupo("Imágenes", listaCronologica(getVal('imagenes'))));
+                if (incluir('microbiologia')) paraclinicos.push(...grupo("Microbiología", listaVinetas(getVal('microbiologia'))));
+                if (incluir('procedimientos')) paraclinicos.push(...grupo("Procedimientos", listaCronologica(getVal('procedimientos'))));
                 if (incluir('electro')) paraclinicos.push(...par("Electrofisiológicos", getVal('electrofisiologia')));
                 if (incluir('funcionales')) paraclinicos.push(...par("Estudios funcionales", getVal('funcionalesSA')));
 
@@ -2626,7 +2653,7 @@
                 const planesItems = sistemas.flatMap(([id, lbl]) => par(lbl, getVal(id)));
                 const farmacosItems = farmacosData
                     .filter(f => f.nombre || f.presentacion || f.dosis || f.frecuencia || f.via || f.duracion)
-                    .map(f => new Paragraph({ text: [f.nombre, f.presentacion, f.dosis, f.frecuencia, f.via, f.duracion].filter(Boolean).join(' - '), bullet: { level: 0 } }));
+                    .map(f => itemPar('- ' + [f.nombre, f.presentacion, f.dosis, f.frecuencia, f.via, f.duracion].filter(Boolean).join(' - ')));
 
                 // Indicaciones (sólo lo indicado / contestado)
                 const indicacionesItems = [
@@ -2672,7 +2699,7 @@
                     ...(incluir('antecedentes') ? seccion("ANTECEDENTES", [
                         ...par("Mórbidos", getVal('antecedentesMoviles')),
                         ...par("Quirúrgicos", getVal('antecedentesQuirurgicos')),
-                        ...par("Fármacos de uso crónico", getVal('farmacos')),
+                        ...grupo("Fármacos de uso crónico", listaVinetas(getVal('farmacos'))),
                         ...par("Alergias", getVal('alergias')),
                         ...par("Reacciones adversas (RAM)", getVal('ram')),
                         ...par("Hábitos", habitos),
@@ -2684,7 +2711,7 @@
 
                     ...(incluir('gineco') ? goParrafos : []),
 
-                    ...(incluir('diagnosticos') ? seccion(tit('diagnosticos', "DIAGNÓSTICOS DE TRABAJO"), txt(getVal('diagnosticos'))) : []),
+                    ...(incluir('diagnosticos') ? seccion(tit('diagnosticos', "DIAGNÓSTICOS DE TRABAJO"), listaNumerada(getVal('diagnosticos'))) : []),
 
                     ...(incluir('historia') ? seccion(tit('historia', "HISTORIA CLÍNICA"), txt(historiaTexto)) : []),
 
@@ -2727,20 +2754,20 @@
                     ...par("Fecha egreso", getVal('egresoFecha') ? formatDate(getVal('egresoFecha')) : ''),
                     ...par("Días hospitalización", getVal('egresoDias')),
 
-                    ...seccion("DIAGNÓSTICOS DE INGRESO", txt(getVal('egresoDiagIngreso'))),
-                    ...seccion("DIAGNÓSTICOS DE EGRESO", txt(getVal('diagnosticos'))),
+                    ...seccion("DIAGNÓSTICOS DE INGRESO", listaNumerada(getVal('egresoDiagIngreso'))),
+                    ...seccion("DIAGNÓSTICOS DE EGRESO", listaNumerada(getVal('diagnosticos'))),
                     ...seccion("HISTORIA CLÍNICA", txt(historiaTexto)),
-                    ...seccion("PROCEDIMIENTOS REALIZADOS", txt(getVal('procedimientos'))),
-                    ...seccion("TRATAMIENTOS RECIBIDOS", txt(getVal('egresoTratamientos'))),
+                    ...seccion("PROCEDIMIENTOS REALIZADOS", listaCronologica(getVal('procedimientos'))),
+                    ...seccion("TRATAMIENTOS RECIBIDOS", listaVinetas(getVal('egresoTratamientos'))),
                     ...seccion("EXÁMENES REALIZADOS Y/O PENDIENTES", [
-                        ...par("Laboratorio", getVal('laboratorios')),
-                        ...par("Orina", getVal('laboratorioOrina')),
-                        ...par("Fluidos", getVal('laboratorioFluidos')),
-                        ...par("Imágenes", getVal('imagenes'))
+                        ...grupo("Laboratorio", listaCronologica(getVal('laboratorios'))),
+                        ...grupo("Orina", listaCronologica(getVal('laboratorioOrina'))),
+                        ...grupo("Fluidos", listaCronologica(getVal('laboratorioFluidos'))),
+                        ...grupo("Imágenes", listaCronologica(getVal('imagenes')))
                     ]),
                     ...seccion("COMPLICACIONES", txt(getVal('egresoComplicaciones'))),
                     ...seccion("ESTADO AL ALTA", txt(getVal('egresoPronostico') || getVal('condicionesActuales'))),
-                    ...seccion("INDICACIONES AL ALTA", txt(getVal('egresoReceta'))),
+                    ...seccion("INDICACIONES AL ALTA", listaVinetas(getVal('egresoReceta'))),
                     ...seccion("PRÓXIMOS CONTROLES", txt(getVal('egresoControles'))),
 
                     ...firmasPlain
