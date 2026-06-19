@@ -7,7 +7,7 @@
  * IMPORTANTE: al publicar cambios, sube el número de versión (CACHE_VERSION)
  * para que los dispositivos descarguen la versión nueva.
  */
-const CACHE_VERSION = 'faster-v0.13.0';
+const CACHE_VERSION = 'faster-v0.13.1';
 
 // Rutas relativas para que funcione tanto en la raíz del dominio como en un
 // subdirectorio (p. ej. GitHub Pages: usuario.github.io/fast-er/).

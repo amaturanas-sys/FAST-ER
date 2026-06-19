@@ -2633,6 +2633,11 @@
                     .map((l, idx) => ({ l: limpiaMarca(l), t: fechaDeLinea(l), idx }))
                     .sort((a, b) => (b.t - a.t) || (a.idx - b.idx))
                     .map(o => itemPar(`- ${o.l}`));
+                // Igual, pero preservando la línea tal cual (sin agregar viñeta) — para procedimientos/imágenes
+                const ordenarPorFecha = (value) => lineasDe(value)
+                    .map((l, idx) => ({ l, t: fechaDeLinea(l), idx }))
+                    .sort((a, b) => (b.t - a.t) || (a.idx - b.idx))
+                    .map(o => itemPar(o.l));
 
                 // Bloque gineco-obstétrico (sólo si Sexo = Femenino), omitiendo vacíos
                 const esFemenino = getRadio('sexo') === 'Femenino';
@@ -2793,45 +2798,46 @@
                     ...firmasPlain
                 ];
 
-                // ===== Epicrisis: estructura tipo servicio de Ginecología (texto plano) =====
+                // ===== Estilo Ginecología (texto plano): bloques compartidos =====
+                const firmaGine = [
+                    ...(tiene(getVal('medicoNombre')) ? [new Paragraph({ spacing: { before: 240 }, children: [new TextRun({ text: `Dr/a ${getVal('medicoNombre')}${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}` })] })] : []),
+                    ...(tiene(getVal('internoNombre')) ? [new Paragraph({ children: [new TextRun({ text: `Int. ${getVal('internoNombre')}${getVal('internoUniversidad') ? ' — ' + getVal('internoUniversidad') : ''}` })] })] : [])
+                ];
+                const examenesGine = [getVal('laboratorios'), getVal('laboratorioOrina'), getVal('laboratorioFluidos')].filter(Boolean).join('\n');
+                const idGine = [
+                    ...(tiene(nombre) ? txt('NOMBRE ' + nombre) : []),
+                    ...(tiene(getVal('pacienteEdad')) ? txt('EDAD ' + getVal('pacienteEdad') + ' AÑOS') : []),
+                    ...(tiene(getVal('pacienteRUT')) ? txt('RUT ' + getVal('pacienteRUT')) : [])
+                ];
+
+                // ===== Epicrisis: estructura del servicio de Ginecología =====
                 const epicrisisChildren = [
-                    new Paragraph({ children: [new TextRun({ text: `EPICRISIS${getVal('unidadNombre') ? ' — ' + getVal('unidadNombre').toUpperCase() : ''}`, bold: true })], spacing: { after: 60 } }),
-                    ...txt(getVal('hospitalNombre')),
-                    ...txt([nombre, getVal('pacienteRUT')].filter(Boolean).join('   ·   '), { spacing: { after: 160 } }),
+                    new Paragraph({ children: [new TextRun({ text: `EPICRISIS${getVal('unidadNombre') ? ' SERVICIO ' + getVal('unidadNombre').toUpperCase() : ''}`, bold: true })], spacing: { after: 120 } }),
+                    ...idGine,
+                    ...(idGine.length ? [new Paragraph({})] : []),
 
                     ...par("Fecha ingreso", getVal('fechaSU') ? formatDate(getVal('fechaSU')) : ''),
                     ...par("Fecha egreso", getVal('egresoFecha') ? formatDate(getVal('egresoFecha')) : ''),
                     ...par("Días hospitalización", getVal('egresoDias')),
 
-                    ...seccion("DIAGNÓSTICOS DE INGRESO", listaNumerada(getVal('egresoDiagIngreso'))),
-                    ...seccion("DIAGNÓSTICOS DE EGRESO", listaNumerada(getVal('diagnosticos'))),
-                    ...seccion("HISTORIA CLÍNICA", txt(historiaTexto)),
-                    ...seccion("PROCEDIMIENTOS REALIZADOS", listaCronologica(getVal('procedimientos'))),
-                    ...seccion("TRATAMIENTOS RECIBIDOS", listaVinetas(getVal('egresoTratamientos'))),
-                    ...seccion("EXÁMENES REALIZADOS Y/O PENDIENTES", [
-                        ...grupo("Laboratorio", listaCronologica(getVal('laboratorios'))),
-                        ...grupo("Orina", listaCronologica(getVal('laboratorioOrina'))),
-                        ...grupo("Fluidos", listaCronologica(getVal('laboratorioFluidos'))),
-                        ...grupo("Imágenes", listaCronologica(getVal('imagenes')))
-                    ]),
+                    ...seccion("DIAGNÓSTICOS DE INGRESO", listaVinetas(getVal('egresoDiagIngreso'))),
+                    ...seccion("DIAGNÓSTICOS DE EGRESO", listaVinetas(getVal('diagnosticos'))),
+                    ...seccion("HISTORIA", txt(historiaTexto)),
+                    ...seccion("TRATAMIENTOS RECIBIDOS", txt(getVal('egresoTratamientos'))),
+                    ...seccion("PROCEDIMIENTOS REALIZADOS", ordenarPorFecha(getVal('procedimientos'))),
+                    ...seccion("EXÁMENES RELEVANTES (SE ADJUNTAN)", listaCronologica(examenesGine)),
+                    ...seccion("IMÁGENES", ordenarPorFecha(getVal('imagenes'))),
                     ...seccion("COMPLICACIONES", txt(getVal('egresoComplicaciones'))),
                     ...seccion("ESTADO AL ALTA", txt(getVal('egresoPronostico') || getVal('condicionesActuales'))),
-                    ...seccion("INDICACIONES AL ALTA", listaVinetas(getVal('egresoReceta'))),
+                    ...seccion("INDICACIONES AL ALTA", txt(getVal('egresoReceta'))),
                     ...seccion("PRÓXIMOS CONTROLES", txt(getVal('egresoControles'))),
 
-                    ...firmasPlain
+                    ...firmaGine
                 ];
 
-                // ===== Evolución: nota diaria estilo Ginecología (encabezado simple, plano) =====
-                const firmaEvol = [
-                    ...(tiene(getVal('medicoNombre')) ? [new Paragraph({ spacing: { before: 240 }, children: [new TextRun({ text: `Dr/a ${getVal('medicoNombre')}${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}` })] })] : []),
-                    ...(tiene(getVal('internoNombre')) ? [new Paragraph({ children: [new TextRun({ text: `Int. ${getVal('internoNombre')}${getVal('internoUniversidad') ? ' — ' + getVal('internoUniversidad') : ''}` })] })] : [])
-                ];
-                const examenesEvol = [getVal('laboratorios'), getVal('laboratorioOrina'), getVal('laboratorioFluidos')].filter(Boolean).join('\n');
+                // ===== Evolución: nota diaria estilo Ginecología =====
                 const evolucionChildren = [
-                    ...(tiene(nombre) ? txt('NOMBRE ' + nombre) : []),
-                    ...(tiene(getVal('pacienteEdad')) ? txt('EDAD ' + getVal('pacienteEdad') + ' AÑOS') : []),
-                    ...(tiene(getVal('pacienteRUT')) ? txt('RUT ' + getVal('pacienteRUT')) : []),
+                    ...idGine,
                     new Paragraph({}),
                     new Paragraph({ children: [new TextRun({ text: `EVOLUCIÓN${getVal('fechaActual') ? ' ' + formatDate(getVal('fechaActual')) : ''}`, bold: true })], spacing: { after: 120 } }),
 
@@ -2842,10 +2848,10 @@
                     ...(indicacionesItems.length ? seccion("INDICACIONES", indicacionesItems) : []),
                     ...seccion("FÁRMACOS", farmacosItems),
                     ...(tiene(getVal('pendientes')) ? seccion("PENDIENTES", listaVinetas(getVal('pendientes'))) : []),
-                    ...seccion("EXÁMENES RELEVANTES (SE ADJUNTAN)", listaCronologica(examenesEvol)),
-                    ...seccion("IMÁGENES", listaCronologica(getVal('imagenes'))),
+                    ...seccion("EXÁMENES RELEVANTES (SE ADJUNTAN)", listaCronologica(examenesGine)),
+                    ...seccion("IMÁGENES", ordenarPorFecha(getVal('imagenes'))),
 
-                    ...firmaEvol
+                    ...firmaGine
                 ];
 
                 const doc = new Document({
