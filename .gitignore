@@ -1,0 +1,5 @@
+# Dependencias y artefactos de la app Android (Capacitor) — se regeneran en CI
+node_modules/
+www/
+android/
+.DS_Store

@@ -1,0 +1,67 @@
+name: Build Android APK (FAST-E.R.)
+
+# Compila el APK Android de FAST-E.R. (Capacitor) y lo publica como artefacto
+# descargable. Ejecútalo manualmente desde la pestaña Actions → Run workflow.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'android-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets (www/)
+        run: npm run build:www
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Generate app icons & splash
+        run: npx capacitor-assets generate --assetPath app-resources --android
+
+      - name: Capacitor sync
+        run: npx cap sync android
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk FAST-ER.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FAST-ER-apk
+          path: FAST-ER.apk
+          if-no-files-found: error
