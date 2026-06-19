@@ -2822,12 +2822,40 @@
                     ...firmasPlain
                 ];
 
+                // ===== Evolución: nota diaria estilo Ginecología (encabezado simple, plano) =====
+                const firmaEvol = [
+                    ...(tiene(getVal('medicoNombre')) ? [new Paragraph({ spacing: { before: 240 }, children: [new TextRun({ text: `Dr/a ${getVal('medicoNombre')}${getVal('medicoServicio') ? ' — ' + getVal('medicoServicio') : ''}` })] })] : []),
+                    ...(tiene(getVal('internoNombre')) ? [new Paragraph({ children: [new TextRun({ text: `Int. ${getVal('internoNombre')}${getVal('internoUniversidad') ? ' — ' + getVal('internoUniversidad') : ''}` })] })] : [])
+                ];
+                const examenesEvol = [getVal('laboratorios'), getVal('laboratorioOrina'), getVal('laboratorioFluidos')].filter(Boolean).join('\n');
+                const evolucionChildren = [
+                    ...(tiene(nombre) ? txt('NOMBRE ' + nombre) : []),
+                    ...(tiene(getVal('pacienteEdad')) ? txt('EDAD ' + getVal('pacienteEdad') + ' AÑOS') : []),
+                    ...(tiene(getVal('pacienteRUT')) ? txt('RUT ' + getVal('pacienteRUT')) : []),
+                    new Paragraph({}),
+                    new Paragraph({ children: [new TextRun({ text: `EVOLUCIÓN${getVal('fechaActual') ? ' ' + formatDate(getVal('fechaActual')) : ''}`, bold: true })], spacing: { after: 120 } }),
+
+                    ...seccion("DIAGNÓSTICOS", listaVinetas(getVal('diagnosticos'))),
+                    ...txt(getVal('condicionesActuales')),
+                    ...seccion("EXAMEN FÍSICO", txt(getVal('examenFisico'))),
+                    ...(planesItems.length ? seccion("PLAN POR SISTEMAS", planesItems) : []),
+                    ...(indicacionesItems.length ? seccion("INDICACIONES", indicacionesItems) : []),
+                    ...seccion("FÁRMACOS", farmacosItems),
+                    ...(tiene(getVal('pendientes')) ? seccion("PENDIENTES", listaVinetas(getVal('pendientes'))) : []),
+                    ...seccion("EXÁMENES RELEVANTES (SE ADJUNTAN)", listaCronologica(examenesEvol)),
+                    ...seccion("IMÁGENES", listaCronologica(getVal('imagenes'))),
+
+                    ...firmaEvol
+                ];
+
                 const doc = new Document({
                     sections: [{
                         properties: {
                             page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } }
                         },
-                        children: (tipoDoc === 'Epicrisis') ? epicrisisChildren : docChildren
+                        children: (tipoDoc === 'Epicrisis') ? epicrisisChildren
+                            : (tipoDoc === 'Evolución') ? evolucionChildren
+                            : docChildren
                     }]
                 });
 
