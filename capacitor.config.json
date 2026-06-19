@@ -1,0 +1,8 @@
+{
+  "appId": "cl.faster.app",
+  "appName": "FAST-E.R.",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}

@@ -1944,7 +1944,30 @@
         const FICHA_FORMAT = 'FAST-ER-ficha';
         const FICHA_VERSION = 1;
 
-        function exportFicha() {
+        // Guardado universal: en la app Android (Capacitor) escribe en Documentos y
+        // abre el menú de compartir/abrir; en el navegador usa la descarga normal.
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const r = new FileReader();
+                r.onloadend = () => resolve(String(r.result).split(',')[1]);
+                r.onerror = reject;
+                r.readAsDataURL(blob);
+            });
+        }
+        async function guardarArchivo(blob, filename) {
+            const cap = window.Capacitor;
+            if (cap && cap.isNativePlatform && cap.isNativePlatform()) {
+                const base64 = await blobToBase64(blob);
+                const { Filesystem, Share } = cap.Plugins;
+                const res = await Filesystem.writeFile({ path: filename, data: base64, directory: 'DOCUMENTS', recursive: true });
+                try { await Share.share({ title: filename, files: [res.uri] }); } catch (e) { /* cancelado */ }
+                return res.uri;
+            }
+            saveAs(blob, filename);
+            return null;
+        }
+
+        async function exportFicha() {
             const payload = {
                 format: FICHA_FORMAT,
                 version: FICHA_VERSION,
@@ -1955,7 +1978,7 @@
             const nombre = (document.getElementById('pacienteNombre').value || 'ficha').trim().replace(/\s+/g, '_') || 'ficha';
             const rut = (document.getElementById('pacienteRUT').value || '').replace(/[.\-\s]/g, '');
             const fecha = document.getElementById('fechaActual').value || new Date().toISOString().split('T')[0];
-            saveAs(blob, `FASTER_${nombre}${rut ? '_' + rut : ''}_${fecha}.json`);
+            await guardarArchivo(blob, `FASTER_${nombre}${rut ? '_' + rut : ''}_${fecha}.json`);
         }
 
         function importFichaFile(input) {
@@ -2808,12 +2831,14 @@
                     }]
                 });
 
-                // Generar Blob
+                // Generar y guardar (navegador: descarga; app Android: Documentos + compartir)
                 const blob = await Packer.toBlob(doc);
-                saveAs(blob, `Ficha_${nombre.replace(/\s+/g, '_')}.docx`);
-                
+                const uri = await guardarArchivo(blob, `Ficha_${nombre.replace(/\s+/g, '_')}.docx`);
+
                 document.getElementById('loading').style.display = 'none';
-                alert('Documento generado correctamente.');
+                alert(uri
+                    ? 'Documento guardado en Documentos. Se abrió el menú para compartir o abrir.'
+                    : 'Documento generado correctamente.');
 
             } catch (error) {
                 console.error(error);
