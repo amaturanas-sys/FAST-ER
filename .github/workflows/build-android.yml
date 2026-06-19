@@ -11,7 +11,7 @@ on:
       - 'apk-build'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -67,3 +67,21 @@ jobs:
           name: FAST-ER-apk
           path: FAST-ER.apk
           if-no-files-found: error
+
+      - name: Publicar APK como Release (descarga directa)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="App Android de FAST-E.R. — funciona 100% offline (toda la herramienta va dentro del APK).
+
+          Instalación (sideload):
+          1) Descarga FAST-ER.apk.
+          2) Ábrelo en el teléfono y permite \"Instalar apps de fuentes desconocidas\".
+          3) Instala. Aparece la app FAST-E.R.
+
+          Nota: APK de depuración (firmado con clave debug); Android puede advertir que es de un desarrollador desconocido."
+          gh release create android-latest FAST-ER.apk \
+            --title "FAST-E.R. — App Android (última APK)" \
+            --notes "$NOTES" \
+            --latest \
+          || gh release upload android-latest FAST-ER.apk --clobber
